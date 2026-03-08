@@ -14,6 +14,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ประวัติการทำรายการ — Mentra BOM</title>
+    <!-- Resource Hints: ให้ browser เตรียม connection ล่วงหน้า -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -197,7 +204,7 @@
                             const data = doc.data();
                             const timeStr = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString('th-TH') : 'กำลังบันทึก...';
                             html += `
-                            <tr class="hover:bg-indigo-50/30 transition-colors">
+                            <tr class="item-row-enter hover:bg-indigo-50/30 transition-colors opacity-0" style="transform: translateY(15px);">
                                 <td class="p-3 md:p-4 text-xs text-slate-500 align-middle">${timeStr}</td>
                                 <td class="p-3 md:p-4 align-middle">
                                     <div class="font-bold text-slate-700">${escapeHtml(data.actorName)}</div>
@@ -212,6 +219,24 @@
                         });
                     }
                     document.getElementById('logsList').innerHTML = html;
+
+                    // GSAP Enter Animation
+                    if (typeof gsap !== 'undefined' && html !== '') {
+                        gsap.to('.item-row-enter', {
+                            opacity: 1,
+                            y: 0,
+                            duration: 0.5,
+                            stagger: 0.04,
+                            ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+                            onComplete: function () {
+                                document.querySelectorAll('.item-row-enter').forEach(el => {
+                                    el.style.transform = '';
+                                    el.style.opacity = '';
+                                    el.classList.remove('item-row-enter', 'opacity-0');
+                                });
+                            }
+                        });
+                    }
                 });
             } else {
                 initAuth();

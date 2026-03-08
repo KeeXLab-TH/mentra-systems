@@ -21,16 +21,24 @@
     <title>Mentra BOM Manager</title>
 
     <!-- ฟอนต์และ Style -->
+    <!-- Resource Hints: ให้ browser เตรียม connection ล่วงหน้า -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 สำหรับ Popup สวยๆ -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <!-- html2pdf.js สำหรับ Export PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
     <!-- ExcelJS + FileSaver สำหรับ Export Excel สวยๆ -->
-    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js" defer></script>
 
     <style>
         * {
@@ -44,19 +52,28 @@
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 1.25rem;
-            box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
-            transition: box-shadow 0.3s ease;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
+            transition: box-shadow var(--dur-fast, 0.25s) var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1)),
+                transform var(--dur-fast, 0.25s) var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1));
         }
 
         .glass-panel:hover {
-            box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
         }
 
-        /* Loading Overlay */
+        /* ── Bento Grid base ─────────────────────────────── */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* ── Loading Overlay ─────────────────────────────── */
         #mainLoading {
             position: fixed;
             inset: 0;
@@ -66,13 +83,89 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.4s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1));
         }
 
+        /* ── SweetAlert2 Font ─────────────────────────────── */
         .swal2-popup {
             font-family: 'Prompt', sans-serif;
             border-radius: 1.25rem !important;
         }
+
+        /* ── Scrollbar ───────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* ── Table Row Setup (GSAP manages animation) ─────────── */
+        .tbl-row-enter {
+            opacity: 0;
+            transform: translateY(15px);
+            /* GSAP will animate this to 1 and 0 */
+        }
+
+        /* ── Row Hover ────────────────────────────────────── */
+        .table-container tbody tr {
+            transition: background-color 0.2s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1)),
+                box-shadow 0.2s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1));
+        }
+
+        .table-container tbody tr:hover {
+            background-color: rgba(99, 102, 241, 0.03);
+        }
+
+        /* ── Filter Pills ─────────────────────────────────── */
+        button[data-filter] {
+            transition: all 0.2s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1)) !important;
+            will-change: transform;
+        }
+
+        button[data-filter]:hover {
+            transform: translateY(-1px);
+        }
+
+        button[data-filter]:active {
+            transform: scale(0.96);
+        }
+
+        /* ── Form Cards Lift ──────────────────────────────── */
+        #formPanel {
+            transition: opacity 0.3s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1));
+        }
+
+        /* ── Status Badge Reveal ──────────────────────────── */
+        @keyframes badgeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.85);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .status-badge-anim {
+            animation: badgeIn 0.3s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1)) both;
+        }
+
+
 
         /* Scrollbar */
         ::-webkit-scrollbar {
@@ -505,10 +598,10 @@
     <?php include 'sidebar.php'; ?>
 
     <div
-        class="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-6 grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6 relative z-10 w-full">
+        class="bento-grid max-w-[95rem] mx-auto px-4 md:px-6 py-6 pb-24 grid grid-cols-1 xl:grid-cols-12 gap-6 relative z-10 w-full">
 
         <!-- Sidebar / Left Panel inside Workspace -->
-        <div class="xl:col-span-4 space-y-4 md:space-y-5 sidebar-sticky">
+        <div class="xl:col-span-3 space-y-6 sidebar-sticky">
             <!-- 1. ส่วนเลือกโครงการ -->
             <div class="glass-panel p-4 md:p-5 border-l-4 border-orange-500 relative overflow-hidden transition-all duration-500 fade-in-up"
                 id="projectPanel">
@@ -691,7 +784,7 @@
         </div>
 
         <!-- Right: Data Table -->
-        <div class="xl:col-span-8">
+        <div class="xl:col-span-9">
             <div
                 class="glass-panel p-3 md:p-6 min-h-[400px] md:min-h-[600px] relative border border-gray-100/50 flex flex-col h-full fade-in-up">
 
@@ -1018,20 +1111,20 @@
                 const loader = document.getElementById('mainLoading');
                 if (loader) {
                     loader.style.opacity = '0';
-                    setTimeout(() => loader.style.display = 'none', 500);
+                    setTimeout(() => loader.style.display = 'none', 400);
                 }
                 loadProjects();
             } else initAuth();
         });
 
-        // Timeout fallback
+        // Timeout fallback — ลดเหลือ 1800ms เพื่อไม่ให้ loading ค้างนาน
         setTimeout(() => {
             const loader = document.getElementById('mainLoading');
             if (loader && loader.style.display !== 'none') {
                 loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
+                setTimeout(() => loader.style.display = 'none', 400);
             }
-        }, 3500);
+        }, 1800);
 
         initAuth();
 
@@ -1055,37 +1148,64 @@
             }
         };
 
+        // ----- localStorage cache helpers -----
+        const PROJ_CACHE_KEY = 'mentra_projects_cache';
+        const PROJ_CACHE_TTL = 5 * 60 * 1000; // 5 นาที
+
+        const saveProjectsCache = (projects) => {
+            try {
+                localStorage.setItem(PROJ_CACHE_KEY, JSON.stringify({ ts: Date.now(), data: projects }));
+            } catch (e) { /* quota full — ข้ามได้ */ }
+        };
+
+        const getProjectsCache = () => {
+            try {
+                const raw = localStorage.getItem(PROJ_CACHE_KEY);
+                if (!raw) return null;
+                const { ts, data } = JSON.parse(raw);
+                return (Date.now() - ts < PROJ_CACHE_TTL) ? data : null;
+            } catch (e) { return null; }
+        };
+
+        const renderProjectDropdown = (projects, preserveSelected = false) => {
+            const select = document.getElementById('projectSelect');
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlProject = urlParams.get('project');
+            if (urlProject && !currentProjectId && projects.some(p => p.id === urlProject)) {
+                currentProjectId = urlProject;
+            }
+            let html = '<option value="" disabled' + (currentProjectId ? '' : ' selected') + '>-- เลือกโครงการ --</option>';
+            projects.forEach(p => {
+                allProjectsData[p.id] = p;
+                html += `<option value="${escapeHtml(p.id)}" ${p.id === currentProjectId ? 'selected' : ''}>📂 ${escapeHtml(p.name)}</option>`;
+            });
+            select.innerHTML = html;
+
+            if (currentProjectId && allProjectsData[currentProjectId]) {
+                updateProjectHeaderUI(allProjectsData[currentProjectId]);
+                if (!preserveSelected) loadItems(currentProjectId);
+            } else if (currentProjectId && !allProjectsData[currentProjectId]) {
+                window.changeProject("");
+            }
+        };
+
         const loadProjects = () => {
+            // แสดง cache ทันทีถ้ามี (ก่อน Firestore ตอบกลับ)
+            const cached = getProjectsCache();
+            if (cached && cached.length > 0) {
+                allProjectsData = {};
+                renderProjectDropdown(cached, false);
+            }
+
             const q = query(getProjectsRef());
             onSnapshot(q, (snapshot) => {
-                const select = document.getElementById('projectSelect');
-                let html = '<option value="" disabled selected>-- เลือกโครงการ --</option>';
                 let projects = [];
                 snapshot.forEach(doc => projects.push({ id: doc.id, ...doc.data() }));
                 projects.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
 
+                saveProjectsCache(projects);
                 allProjectsData = {};
-
-                // Try to get active project from URL query parameter
-                const urlParams = new URLSearchParams(window.location.search);
-                const urlProject = urlParams.get('project');
-
-                if (urlProject && !currentProjectId && projects.some(p => p.id === urlProject)) {
-                    currentProjectId = urlProject;
-                }
-
-                projects.forEach(p => {
-                    allProjectsData[p.id] = p;
-                    html += `<option value="${escapeHtml(p.id)}" ${p.id === currentProjectId ? "selected" : ""}>📂 ${escapeHtml(p.name)}</option>`;
-                });
-                select.innerHTML = html;
-
-                if (currentProjectId && allProjectsData[currentProjectId]) {
-                    updateProjectHeaderUI(allProjectsData[currentProjectId]);
-                    loadItems(currentProjectId);
-                } else if (currentProjectId && !allProjectsData[currentProjectId]) {
-                    window.changeProject("");
-                }
+                renderProjectDropdown(projects, !!cached);
             }, (error) => console.error("Error loading projects:", error));
         }
 

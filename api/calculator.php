@@ -16,15 +16,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>คำนวณราคา — Mentra BOM</title>
 
+    <!-- Resource Hints: ให้ browser เตรียม connection ล่วงหน้า -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
     <!-- Export Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js" defer></script>
 
     <style>
         * {
@@ -201,128 +209,143 @@
         <!-- Project Info Bar -->
         <div
             class="glass-panel p-4 md:p-5 border-l-4 border-violet-500 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div>
+            <div class="flex flex-col gap-1">
                 <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1"><i
-                        class="fa-regular fa-folder-open mr-1 text-violet-500"></i>โครงการ</p>
-                <h2 class="text-lg md:text-xl font-bold text-slate-800" id="projectNameDisplay">กำลังโหลด...</h2>
+                        class="fa-solid fa-layer-group mr-1 text-violet-500"></i>โหมดการคำนวณ</p>
+                <div class="flex items-center gap-3">
+                    <button onclick="startSelection()"
+                        class="bg-violet-600 hover:bg-violet-700 text-white px-5 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-lg shadow-violet-200 flex items-center gap-2 active:scale-95 group">
+                        <i class="fa-solid fa-magnifying-glass-plus group-hover:rotate-12 transition-transform"></i>
+                        เลือกโครงการ & โหมด
+                    </button>
+                    <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
+                </div>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
-                <button onclick="selectAll()"
-                    class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-2 rounded-xl text-xs font-bold transition-all border border-blue-200 btn-lift">
-                    <i class="fa-solid fa-check-double mr-1"></i> <span class="hidden sm:inline">เลือก</span>ทั้งหมด
-                </button>
-                <button onclick="deselectAll()"
-                    class="bg-slate-50 hover:bg-slate-100 text-slate-600 px-3 py-2 rounded-xl text-xs font-bold transition-all border border-slate-200 btn-lift">
-                    <i class="fa-solid fa-xmark mr-1"></i> ยกเลิก
-                </button>
-                <div class="h-5 w-px bg-slate-200 mx-0.5 hidden sm:block"></div>
+            <div class="flex-1 px-2">
+                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-0.5">โครงการที่เลือก</p>
+                <h2 class="text-base md:text-xl font-extrabold text-slate-800 truncate max-w-[200px] md:max-w-md"
+                    id="projectNameDisplay">กรุณาเลือกโครงการ</h2>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button onclick="selectAll()"
+                        class="magnetic hover:bg-white hover:text-blue-600 text-slate-500 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-check"></i> ทั้งหมด
+                    </button>
+                    <button onclick="deselectAll()"
+                        class="magnetic hover:bg-white hover:text-slate-700 text-slate-500 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-xmark"></i> ยกเลิก
+                    </button>
+                </div>
+                <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
                 <button onclick="window.calcExportPDF()"
-                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 btn-lift">
-                    <i class="fa-solid fa-file-pdf"></i> <span class="hidden sm:inline">Export</span> PDF
+                    class="magnetic bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-file-pdf"></i> PDF
                 </button>
                 <button onclick="window.calcExportExcel()"
-                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 btn-lift">
-                    <i class="fa-solid fa-file-excel"></i> <span class="hidden sm:inline">Export</span> Excel
+                    class="magnetic bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-file-excel"></i> Excel
                 </button>
             </div>
         </div>
+    </div>
 
-        <!-- Calculator Panel -->
-        <div class="glass-panel p-5 md:p-8 border border-violet-100/50 relative overflow-hidden">
+    <!-- Calculator Panel -->
+    <div class="glass-panel p-5 md:p-8 border border-violet-100/50 relative overflow-hidden">
+        <div
+            class="absolute top-0 right-0 -mt-4 -mr-4 w-28 h-28 bg-violet-500 opacity-5 rounded-full pointer-events-none">
+        </div>
+        <div
+            class="absolute bottom-0 left-0 -mb-6 -ml-6 w-20 h-20 bg-orange-500 opacity-5 rounded-full pointer-events-none">
+        </div>
+
+        <h3 class="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2 mb-6">
+            <i class="fa-solid fa-calculator text-violet-500"></i> ผลการคำนวณ
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            <!-- Sum Box -->
             <div
-                class="absolute top-0 right-0 -mt-4 -mr-4 w-28 h-28 bg-violet-500 opacity-5 rounded-full pointer-events-none">
+                class="bg-gradient-to-br from-blue-50 to-blue-100/50 p-5 rounded-2xl border border-blue-200/60 text-center">
+                <p class="text-[10px] text-blue-500 uppercase font-extrabold tracking-widest mb-2">ราคารวมที่เลือก
+                    (SUM)</p>
+                <h3 class="text-2xl md:text-3xl font-extrabold text-blue-600" id="sumDisplay">฿0.00</h3>
+                <p class="text-[10px] text-blue-400 mt-1" id="sumItemsNote">0 รายการ</p>
             </div>
+
+            <!-- Multiplier Box -->
             <div
-                class="absolute bottom-0 left-0 -mb-6 -ml-6 w-20 h-20 bg-orange-500 opacity-5 rounded-full pointer-events-none">
-            </div>
-
-            <h3 class="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2 mb-6">
-                <i class="fa-solid fa-calculator text-violet-500"></i> ผลการคำนวณ
-            </h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                <!-- Sum Box -->
-                <div
-                    class="bg-gradient-to-br from-blue-50 to-blue-100/50 p-5 rounded-2xl border border-blue-200/60 text-center">
-                    <p class="text-[10px] text-blue-500 uppercase font-extrabold tracking-widest mb-2">ราคารวมที่เลือก
-                        (SUM)</p>
-                    <h3 class="text-2xl md:text-3xl font-extrabold text-blue-600" id="sumDisplay">฿0.00</h3>
-                    <p class="text-[10px] text-blue-400 mt-1" id="sumItemsNote">0 รายการ</p>
-                </div>
-
-                <!-- Multiplier Box -->
-                <div
-                    class="bg-gradient-to-br from-violet-50 to-purple-100/50 p-5 rounded-2xl border border-violet-200/60 text-center flex flex-col items-center justify-center">
-                    <p class="text-[10px] text-violet-500 uppercase font-extrabold tracking-widest mb-3">จำนวนชุด (×)
-                    </p>
-                    <div class="flex items-center gap-2">
-                        <button onclick="changeQty(-1)"
-                            class="w-10 h-10 rounded-xl bg-white border border-violet-200 text-violet-600 font-bold text-lg shadow-sm hover:bg-violet-50 transition-all active:scale-95">−</button>
-                        <input type="number" id="setQty" value="1" min="1" max="9999"
-                            class="set-input w-20 text-center text-2xl font-extrabold text-violet-700 bg-white border-2 border-violet-200 rounded-xl py-2 outline-none transition-all"
-                            oninput="recalculate()">
-                        <button onclick="changeQty(1)"
-                            class="w-10 h-10 rounded-xl bg-white border border-violet-200 text-violet-600 font-bold text-lg shadow-sm hover:bg-violet-50 transition-all active:scale-95">+</button>
-                    </div>
-                    <p class="text-[10px] text-violet-400 mt-2">ชุด / Set</p>
-                </div>
-
-                <!-- Grand Total Box -->
-                <div
-                    class="bg-gradient-to-br from-orange-50 to-amber-100/50 p-5 rounded-2xl border border-orange-200/60 text-center relative">
-                    <div class="result-pulse">
-                        <p class="text-[10px] text-orange-600 uppercase font-extrabold tracking-widest mb-2">ยอดรวมสุทธิ
-                        </p>
-                        <h3 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-500"
-                            id="grandTotalCalc">฿0.00</h3>
-                        <p class="text-[10px] text-orange-400 mt-1" id="grandTotalNote">0 รายการ × 1 ชุด</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Formula Display -->
-            <div class="mt-5 bg-slate-50 rounded-xl p-4 border border-slate-100 text-center">
-                <p class="text-xs text-slate-400 mb-1 font-bold uppercase tracking-wider">สูตรคำนวณ</p>
-                <p class="text-sm md:text-base font-bold text-slate-600">
-                    <span class="text-blue-600" id="formulaSum">฿0.00</span>
-                    <span class="text-slate-400 mx-2">×</span>
-                    <span class="text-violet-600" id="formulaQty">1 ชุด</span>
-                    <span class="text-slate-400 mx-2">=</span>
-                    <span class="text-orange-600 text-lg" id="formulaTotal">฿0.00</span>
+                class="bg-gradient-to-br from-violet-50 to-purple-100/50 p-5 rounded-2xl border border-violet-200/60 text-center flex flex-col items-center justify-center">
+                <p class="text-[10px] text-violet-500 uppercase font-extrabold tracking-widest mb-3">จำนวนชุด (×)
                 </p>
+                <div class="flex items-center gap-2">
+                    <button onclick="changeQty(-1)"
+                        class="w-10 h-10 rounded-xl bg-white border border-violet-200 text-violet-600 font-bold text-lg shadow-sm hover:bg-violet-50 transition-all active:scale-95">−</button>
+                    <input type="number" id="setQty" value="1" min="1" max="9999"
+                        class="set-input w-20 text-center text-2xl font-extrabold text-violet-700 bg-white border-2 border-violet-200 rounded-xl py-2 outline-none transition-all"
+                        oninput="recalculate()">
+                    <button onclick="changeQty(1)"
+                        class="w-10 h-10 rounded-xl bg-white border border-violet-200 text-violet-600 font-bold text-lg shadow-sm hover:bg-violet-50 transition-all active:scale-95">+</button>
+                </div>
+                <p class="text-[10px] text-violet-400 mt-2">ชุด / Set</p>
             </div>
-        </div>
 
-        <!-- Items List -->
-        <div class="glass-panel p-4 md:p-6 border border-gray-100/50">
-            <div class="flex items-center justify-between mb-4 border-b pb-3 border-slate-100">
-                <h3 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-list-check text-violet-500"></i> เลือกรายการวัสดุ
-                </h3>
-                <span class="text-xs text-slate-400" id="selectedCount">เลือกแล้ว 0 รายการ</span>
-            </div>
-
-            <div id="itemsList" class="space-y-2">
-                <div class="text-center py-12 text-slate-300">
-                    <i class="fa-solid fa-spinner fa-spin text-2xl text-violet-400"></i>
-                    <p class="mt-2 text-sm">กำลังโหลดรายการ...</p>
+            <!-- Grand Total Box -->
+            <div
+                class="bg-gradient-to-br from-orange-50 to-amber-100/50 p-5 rounded-2xl border border-orange-200/60 text-center relative">
+                <div class="result-pulse">
+                    <p class="text-[10px] text-orange-600 uppercase font-extrabold tracking-widest mb-2">ยอดรวมสุทธิ
+                    </p>
+                    <h3 class="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-500"
+                        id="grandTotalCalc">฿0.00</h3>
+                    <p class="text-[10px] text-orange-400 mt-1" id="grandTotalNote">0 รายการ × 1 ชุด</p>
                 </div>
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="text-center text-[10px] text-slate-400 py-4">
-            <span class="flex items-center gap-2 justify-center opacity-70">
-                <i class="fa-solid fa-shield-halved text-green-500"></i> Secured by Firebase
-                <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                Mentra BOM v3.0 — Price Calculator
-            </span>
+        <!-- Formula Display -->
+        <div class="mt-5 bg-slate-50 rounded-xl p-4 border border-slate-100 text-center">
+            <p class="text-xs text-slate-400 mb-1 font-bold uppercase tracking-wider">สูตรคำนวณ</p>
+            <p class="text-sm md:text-base font-bold text-slate-600">
+                <span class="text-blue-600" id="formulaSum">฿0.00</span>
+                <span class="text-slate-400 mx-2">×</span>
+                <span class="text-violet-600" id="formulaQty">1 ชุด</span>
+                <span class="text-slate-400 mx-2">=</span>
+                <span class="text-orange-600 text-lg" id="formulaTotal">฿0.00</span>
+            </p>
         </div>
+    </div>
+
+    <!-- Items List -->
+    <div class="glass-panel p-4 md:p-6 border border-gray-100/50">
+        <div class="flex items-center justify-between mb-4 border-b pb-3 border-slate-100">
+            <h3 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-violet-500"></i> เลือกรายการวัสดุ
+            </h3>
+            <span class="text-xs text-slate-400" id="selectedCount">เลือกแล้ว 0 รายการ</span>
+        </div>
+
+        <div id="itemsList" class="space-y-2">
+            <div class="text-center py-12 text-slate-300">
+                <i class="fa-solid fa-spinner fa-spin text-2xl text-violet-400"></i>
+                <p class="mt-2 text-sm">กำลังโหลดรายการ...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center text-[10px] text-slate-400 py-4">
+        <span class="flex items-center gap-2 justify-center opacity-70">
+            <i class="fa-solid fa-shield-halved text-green-500"></i> Secured by Firebase
+            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+            Mentra BOM v3.0 — Price Calculator
+        </span>
+    </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Config
@@ -354,6 +377,7 @@
         const auth = getAuth(app);
 
         const getItemsRef = () => isCanvasEnv ? collection(db, 'artifacts', appId, 'public', 'data', 'bom_items') : collection(db, 'bom_items');
+        const getProjectsRef = () => isCanvasEnv ? collection(db, 'artifacts', appId, 'public', 'data', 'bom_projects') : collection(db, 'bom_projects');
 
         // URL params
         const params = new URLSearchParams(window.location.search);
@@ -369,25 +393,141 @@
 
         let items = [];
         let selectedIds = new Set();
+        let currentMode = 'per_project'; // 'per_project' or 'all_projects'
+        let selectedProjectIds = [];
+        let allProjects = [];
+
+        const fetchAllProjects = async () => {
+            try {
+                const q = query(getProjectsRef(), orderBy("name", "asc"));
+                const snap = await getDocs(q);
+                allProjects = [];
+                snap.forEach(d => allProjects.push({ id: d.id, ...d.data() }));
+            } catch (e) {
+                console.error("Fetch projects error:", e);
+            }
+        };
+
+        const startSelection = async () => {
+            await fetchAllProjects();
+
+            const { value: mode } = await Swal.fire({
+                title: 'เลือกรูปแบบการคำนวณ',
+                html: `
+                    <div class="grid grid-cols-1 gap-3 p-2 text-left">
+                        <div onclick="Swal.clickConfirm(); window._selMode='single'" class="p-4 bg-blue-50/50 hover:bg-blue-50 border-2 border-blue-100 hover:border-blue-400 rounded-2xl cursor-pointer transition-all flex items-center gap-4 group">
+                            <div class="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center text-xl shadow-lg shadow-blue-200"><i class="fa-solid fa-file-circle-check"></i></div>
+                            <div><p class="font-bold text-blue-900">คำนวณรายโครงการเดียว</p><p class="text-xs text-blue-600/70">แสดงรายการวัสดุแบบละเอียดรายชิ้น</p></div>
+                        </div>
+                        <div onclick="Swal.clickConfirm(); window._selMode='multi'" class="p-4 bg-violet-50/50 hover:bg-violet-50 border-2 border-violet-100 hover:border-violet-400 rounded-2xl cursor-pointer transition-all flex items-center gap-4 group">
+                            <div class="w-12 h-12 bg-violet-600 text-white rounded-xl flex items-center justify-center text-xl shadow-lg shadow-violet-200"><i class="fa-solid fa-layer-group"></i></div>
+                            <div><p class="font-bold text-violet-900">คำนวณรวบรวมหลายโครงการ</p><p class="text-xs text-violet-600/70">เลือกเฉพาะบางโครงการและแสดงสรุปยอดรวม</p></div>
+                        </div>
+                        <div onclick="Swal.clickConfirm(); window._selMode='all'" class="p-4 bg-emerald-50/50 hover:bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 rounded-2xl cursor-pointer transition-all flex items-center gap-4 group">
+                            <div class="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-xl shadow-lg shadow-emerald-200"><i class="fa-solid fa-globe"></i></div>
+                            <div><p class="font-bold text-emerald-900">คำนวณทุกโครงการที่มีทั้งหมด</p><p class="text-xs text-emerald-600/70">รวบรวมข้อมูลจากทุกโครงการในระบบทันที</p></div>
+                        </div>
+                    </div>
+                `,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: 'ปิดหน้าต่าง',
+                width: '500px'
+            });
+
+            const modeChoice = window._selMode;
+            if (!modeChoice) return;
+
+            if (modeChoice === 'all') {
+                currentMode = 'all_projects';
+                selectedProjectIds = allProjects.map(p => p.id);
+                document.getElementById('projectNameDisplay').textContent = 'สรุปทุกโครงการ';
+                document.getElementById('projectNameDisplay').classList.add('text-violet-600');
+                loadItems();
+            } else if (modeChoice === 'single') {
+                currentMode = 'per_project';
+                const { value: selectedId } = await Swal.fire({
+                    title: 'เลือกโครงการหลัก',
+                    width: '700px',
+                    showCancelButton: true,
+                    cancelButtonText: 'กลับ',
+                    html: `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto p-4 text-left">${allProjects.map(p => `
+                        <label class="relative flex flex-col gap-2 p-3 bg-white rounded-2xl cursor-pointer hover:ring-2 hover:ring-blue-200 transition-all border border-slate-100 shadow-sm group">
+                            <input type="radio" name="proj_radio" value="${p.id}" class="peer hidden">
+                            <div class="w-full h-24 bg-slate-100 rounded-xl overflow-hidden mb-1">${p.coverImage ? `<img src="${p.coverImage}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center text-slate-300"><i class="fa-solid fa-folder-open text-3xl"></i></div>`}</div>
+                            <div class="flex flex-col"><span class="text-sm font-bold text-slate-700 truncate">${p.name}</span><span class="text-[10px] text-slate-400">ID: ${p.id.substring(0, 8)}...</span></div>
+                            <div class="peer-checked:bg-blue-50 absolute inset-0 rounded-2xl -z-0 border-2 border-transparent peer-checked:border-blue-500 transition-all"></div>
+                        </label>`).join('')}</div>`,
+                    confirmButtonText: 'ตกลง',
+                    preConfirm: () => (document.querySelector('input[name="proj_radio"]:checked'))?.value
+                });
+                if (selectedId) {
+                    selectedProjectIds = [selectedId];
+                    const p = allProjects.find(x => x.id === selectedId);
+                    document.getElementById('projectNameDisplay').textContent = p ? p.name : 'โครงการ';
+                    document.getElementById('projectNameDisplay').classList.remove('text-violet-600');
+                    loadItems();
+                } else if (selectedId === undefined && modeChoice) return startSelection();
+            } else if (modeChoice === 'multi') {
+                currentMode = 'all_projects';
+                const { value: multiSelected } = await Swal.fire({
+                    title: 'เลือกโครงการที่ต้องการรวม',
+                    width: '700px',
+                    showCancelButton: true,
+                    cancelButtonText: 'กลับ',
+                    html: `<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto p-4 text-left">${allProjects.map(p => `
+                        <label class="relative flex flex-col gap-2 p-3 bg-white rounded-2xl cursor-pointer hover:ring-2 hover:ring-violet-200 transition-all border border-slate-100 shadow-sm group">
+                            <input type="checkbox" name="proj_check" value="${p.id}" class="peer absolute top-3 right-3 w-5 h-5 rounded-full text-violet-600 focus:ring-violet-500 z-10">
+                            <div class="w-full h-24 bg-slate-100 rounded-xl overflow-hidden mb-1">${p.coverImage ? `<img src="${p.coverImage}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">` : `<div class="w-full h-full flex items-center justify-center text-slate-300"><i class="fa-solid fa-folder-open text-3xl"></i></div>`}</div>
+                            <div class="flex flex-col"><span class="text-sm font-bold text-slate-700 truncate">${p.name}</span><span class="text-[10px] text-slate-400">ID: ${p.id.substring(0, 8)}...</span></div>
+                            <div class="peer-checked:bg-violet-50 absolute inset-0 rounded-2xl -z-0 border-2 border-transparent peer-checked:border-violet-500 transition-all"></div>
+                        </label>`).join('')}</div>`,
+                    confirmButtonText: 'สรุปข้อมูลที่เลือก',
+                    preConfirm: () => {
+                        const sel = Array.from(document.querySelectorAll('input[name="proj_check"]:checked')).map(el => el.value);
+                        if (sel.length === 0) Swal.showValidationMessage('กรุณาเลือกอย่างน้อย 1 โครงการ');
+                        return sel;
+                    }
+                });
+                if (multiSelected) {
+                    selectedProjectIds = multiSelected;
+                    document.getElementById('projectNameDisplay').textContent = `สรุป ${selectedProjectIds.length} โครงการ`;
+                    document.getElementById('projectNameDisplay').classList.add('text-violet-600');
+                    loadItems();
+                } else if (multiSelected === undefined && modeChoice) return startSelection();
+            }
+        };
+
+        const selectPerProject = () => startSelection();
+        const selectAllProjects = () => startSelection();
+        const showModeSelection = () => startSelection();
+
+        // Expose to global scope (required for onclick= in HTML inside type="module")
+        window.startSelection = startSelection;
 
         const escapeHtml = (str) => {
             if (str == null) return '';
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         };
 
-        const loadItems = async () => {
-            try {
-                const q = query(getItemsRef(), where("projectId", "==", projectId));
-                const snap = await getDocs(q);
-                items = [];
-                snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-                items.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-                renderItemsList();
-            } catch (e) {
-                console.error('Load error:', e);
-                document.getElementById('itemsList').innerHTML = `<div class="text-center py-12 text-red-400"><p class="text-sm">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(e.message)}</p></div>`;
-            }
+        // Primary Functions
+        const recalculate = () => {
+            const selectedItems = items.filter(i => selectedIds.has(i.id));
+            const sum = selectedItems.reduce((acc, i) => acc + (i.total || 0), 0);
+            const qty = Math.max(1, parseInt(document.getElementById('setQty').value || '1'));
+            const grandTotal = sum * qty;
+
+            if (document.getElementById('sumDisplay')) document.getElementById('sumDisplay').textContent = '฿' + sum.toLocaleString(undefined, { minimumFractionDigits: 2 });
+            if (document.getElementById('sumItemsNote')) document.getElementById('sumItemsNote').textContent = `${selectedItems.length} รายการ`;
+            if (document.getElementById('selectedCount')) document.getElementById('selectedCount').textContent = `เลือกแล้ว ${selectedItems.length} รายการ`;
+            if (document.getElementById('grandTotalCalc')) document.getElementById('grandTotalCalc').textContent = '฿' + grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
+            if (document.getElementById('grandTotalNote')) document.getElementById('grandTotalNote').textContent = `${selectedItems.length} รายการ × ${qty} ชุด`;
+
+            if (document.getElementById('formulaSum')) document.getElementById('formulaSum').textContent = '฿' + sum.toLocaleString(undefined, { minimumFractionDigits: 2 });
+            if (document.getElementById('formulaQty')) document.getElementById('formulaQty').textContent = qty + ' ชุด';
+            if (document.getElementById('formulaTotal')) document.getElementById('formulaTotal').textContent = '฿' + grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
         };
+        window.recalculate = recalculate;
 
         const renderItemsList = () => {
             if (!items.length) {
@@ -396,25 +536,121 @@
             }
 
             let html = '';
-            items.forEach(item => {
-                const isSelected = selectedIds.has(item.id);
-                const statusText = item.status === 'ordered' ? '🚚 สั่งแล้ว' : item.status === 'received' ? '✅ ได้รับ' : item.status === 'cancelled' ? '❌ ยกเลิก' : '⏳ รอ';
-                html += `
-                <div class="item-row flex items-center gap-3 p-3 md:p-4 rounded-xl border border-slate-200/80 cursor-pointer ${isSelected ? 'selected-item' : ''}" data-id="${escapeHtml(item.id)}" onclick="window.toggleItem('${escapeHtml(item.id)}')">
-                    <div class="custom-check ${isSelected ? 'checked' : ''}" id="check-${escapeHtml(item.id)}"></div>
-                    ${item.image ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-slate-100 flex-shrink-0">` : '<span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 text-slate-300 flex-shrink-0"><i class="fa-regular fa-image"></i></span>'}
-                    <div class="flex-grow min-w-0">
-                        <p class="font-bold text-sm text-slate-700 truncate">${escapeHtml(item.name)}</p>
-                        <p class="text-[10px] text-slate-400 truncate">${escapeHtml(item.details) || '-'}</p>
-                    </div>
-                    <div class="text-right flex-shrink-0">
-                        <p class="font-extrabold text-sm text-blue-600">฿${(item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
-                        <p class="text-[10px] text-slate-400">x${item.qty || 1} = <span class="font-bold text-slate-600">฿${(item.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></p>
-                    </div>
-                    <div class="text-[10px] text-slate-400 w-16 text-center flex-shrink-0 hidden sm:block">${statusText}</div>
-                </div>`;
-            });
+            if (selectedProjectIds.length > 1) {
+                const projectSummary = {};
+                items.forEach(i => {
+                    if (!projectSummary[i.projectId]) {
+                        projectSummary[i.projectId] = { name: i.projectName, total: 0, count: 0, ids: [] };
+                    }
+                    projectSummary[i.projectId].total += (i.total || 0);
+                    projectSummary[i.projectId].count++;
+                    projectSummary[i.projectId].ids.push(i.id);
+                });
+
+                Object.entries(projectSummary).forEach(([pid, data]) => {
+                    const allSelected = data.ids.every(id => selectedIds.has(id));
+                    const someSelected = data.ids.some(id => selectedIds.has(id));
+
+                    html += `
+                    <div class="item-row item-row-enter flex items-center gap-4 p-5 rounded-3xl border border-slate-200/80 cursor-pointer mb-3 transition-all ${allSelected ? 'selected-item bg-violet-50/50 border-violet-200 shadow-sm' : 'hover:border-slate-300 hover:bg-slate-50'}" onclick="window.toggleProjectGroup('${pid}')">
+                        <div class="custom-check ${allSelected ? 'checked' : someSelected ? 'opacity-50 checked' : ''}"></div>
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-violet-200">
+                            <i class="fa-solid fa-folder-tree text-lg"></i>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <p class="font-bold text-lg text-slate-800 truncate">${escapeHtml(data.name)}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="px-2 py-0.5 rounded-lg bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200">ID: ${pid.substring(0, 6)}</span>
+                                <span class="text-[11px] text-slate-400 font-medium">${data.count} รายการวัสดุ</span>
+                            </div>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="font-black text-xl text-violet-600">฿${data.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Project Total</p>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                items.forEach(item => {
+                    const isSelected = selectedIds.has(item.id);
+                    const statusText = item.status === 'ordered' ? '🚚 สั่งแล้ว' : item.status === 'received' ? '✅ ได้รับ' : item.status === 'cancelled' ? '❌ ยกเลิก' : '⏳ รอ';
+                    html += `
+                    <div class="item-row item-row-enter flex items-center gap-3 p-3 md:p-4 rounded-xl border border-slate-200/80 cursor-pointer ${isSelected ? 'selected-item' : ''}" data-id="${escapeHtml(item.id)}" onclick="window.toggleItem('${escapeHtml(item.id)}')">
+                        <div class="custom-check ${isSelected ? 'checked' : ''}" id="check-${escapeHtml(item.id)}"></div>
+                        ${item.image ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-slate-100 flex-shrink-0">` : '<span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 text-slate-300 flex-shrink-0"><i class="fa-regular fa-image"></i></span>'}
+                        <div class="flex-grow min-w-0">
+                            <div class="flex items-center gap-2">
+                                <p class="font-bold text-sm text-slate-700 truncate">${escapeHtml(item.name)}</p>
+                                ${selectedProjectIds.length > 1 ? `<span class="px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-500 text-[9px] font-bold border border-violet-100 truncate max-w-[100px]">${escapeHtml(item.projectName || 'N/A')}</span>` : ''}
+                            </div>
+                            <p class="text-[10px] text-slate-400 truncate">${escapeHtml(item.details) || '-'}</p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="font-extrabold text-sm text-blue-600">฿${(item.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                            <p class="text-[10px] text-slate-400">x${item.qty || 1} = <span class="font-bold text-slate-600">฿${(item.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span></p>
+                        </div>
+                        <div class="text-[10px] text-slate-400 w-16 text-center flex-shrink-0 hidden sm:block">${statusText}</div>
+                    </div>`;
+                });
+            }
             document.getElementById('itemsList').innerHTML = html;
+
+            // GSAP Enter Animation
+            if (typeof gsap !== 'undefined') {
+                gsap.fromTo('.item-row-enter',
+                    { opacity: 0, y: 15 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.5,
+                        stagger: 0.04,
+                        ease: "cubic-bezier(0.22, 1, 0.36, 1)",
+                        onComplete: function () {
+                            // นำ class ออกเมื่อ animate เสร็จ (ป้องกันปัญหาสะสม / repaint)
+                            document.querySelectorAll('.item-row-enter').forEach(el => {
+                                el.style.transform = '';
+                                el.classList.remove('item-row-enter', 'opacity-0');
+                            });
+                        }
+                    }
+                );
+            }
+        };
+
+        const loadItems = async () => {
+            try {
+                if (selectedProjectIds.length === 0) {
+                    document.getElementById('itemsList').innerHTML = '<div class="text-center py-12 text-slate-300"><i class="fa-solid fa-folder-open text-3xl"></i><p class="mt-2 text-sm">กรุณาเลือกโครงการเพื่อนนำข้อมูลมาคำนวณ</p></div>';
+                    return;
+                }
+
+                let q = query(getItemsRef(), where("projectId", "in", selectedProjectIds.slice(0, 30)));
+                const snap = await getDocs(q);
+                items = [];
+                snap.forEach(d => {
+                    const data = d.data();
+                    const p = allProjects.find(x => x.id === data.projectId);
+                    items.push({ id: d.id, ...data, projectName: p ? p.name : 'N/A' });
+                    if (selectedProjectIds.length > 1) selectedIds.add(d.id);
+                });
+                items.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                renderItemsList();
+                recalculate();
+            } catch (e) {
+                console.error('Load error:', e);
+                document.getElementById('itemsList').innerHTML = `<div class="text-center py-12 text-red-400"><p class="text-sm">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(e.message)}</p></div>`;
+            }
+        };
+
+        window.toggleProjectGroup = (pid) => {
+            const pItems = items.filter(i => i.projectId === pid);
+            const allSel = pItems.every(i => selectedIds.has(i.id));
+            pItems.forEach(i => {
+                if (allSel) selectedIds.delete(i.id);
+                else selectedIds.add(i.id);
+            });
+            renderItemsList();
+            recalculate();
         };
 
         window.toggleItem = (id) => {
@@ -443,23 +679,6 @@
             recalculate();
         };
 
-        window.recalculate = () => {
-            const selectedItems = items.filter(i => selectedIds.has(i.id));
-            const sum = selectedItems.reduce((acc, i) => acc + (i.total || 0), 0);
-            const qty = Math.max(1, parseInt(document.getElementById('setQty').value || '1'));
-            const grandTotal = sum * qty;
-
-            document.getElementById('sumDisplay').textContent = '฿' + sum.toLocaleString(undefined, { minimumFractionDigits: 2 });
-            document.getElementById('sumItemsNote').textContent = `${selectedItems.length} รายการ`;
-            document.getElementById('selectedCount').textContent = `เลือกแล้ว ${selectedItems.length} รายการ`;
-            document.getElementById('grandTotalCalc').textContent = '฿' + grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
-            document.getElementById('grandTotalNote').textContent = `${selectedItems.length} รายการ × ${qty} ชุด`;
-
-            document.getElementById('formulaSum').textContent = '฿' + sum.toLocaleString(undefined, { minimumFractionDigits: 2 });
-            document.getElementById('formulaQty').textContent = qty + ' ชุด';
-            document.getElementById('formulaTotal').textContent = '฿' + grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2 });
-        };
-
         // ============================
         // Export PDF — Calculator
         // ============================
@@ -469,13 +688,35 @@
             Swal.fire({ title: 'กำลังสร้าง PDF...', didOpen: () => Swal.showLoading() });
 
             const qty = Math.max(1, parseInt(document.getElementById('setQty').value || '1'));
-            const sum = selectedItems.reduce((acc, i) => acc + (i.total || 0), 0);
-            const grandTotal = sum * qty;
             const fmtNum = (n) => n.toLocaleString(undefined, { minimumFractionDigits: 2 });
             const dateStr = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
 
+            let displayItems = [];
+            let isAggregated = selectedProjectIds.length > 1;
+
+            if (isAggregated) {
+                const summary = {};
+                selectedItems.forEach(i => {
+                    if (!summary[i.projectId]) summary[i.projectId] = { name: i.projectName, total: 0, count: 0 };
+                    summary[i.projectId].total += (i.total || 0);
+                    summary[i.projectId].count++;
+                });
+                displayItems = Object.values(summary).map(s => ({
+                    name: `${s.name}`,
+                    details: `รวม ${s.count} รายการวัสดุ`,
+                    price: s.total,
+                    qty: 1,
+                    total: s.total
+                }));
+            } else {
+                displayItems = selectedItems;
+            }
+
+            const sum = selectedItems.reduce((acc, i) => acc + (i.total || 0), 0);
+            const grandTotal = sum * qty;
+
             const ITEMS_PER_PAGE = 15;
-            const totalPages = Math.ceil(selectedItems.length / ITEMS_PER_PAGE);
+            const totalPages = Math.ceil(displayItems.length / ITEMS_PER_PAGE);
 
             const makeHeader = (pageNum) => `
                 <div style="display:flex; justify-content:space-between; margin-bottom:14px; border-bottom:3px solid #7c3aed; padding-bottom:12px;">
@@ -484,15 +725,15 @@
                         <div><h1 style="font-size:17px; font-weight:bold; margin:0;">Mentra Solution Co., Ltd.</h1><p style="font-size:11px; color:#666; margin:2px 0 0;">ใบคำนวณราคาวัสดุ (Price Calculator)</p></div>
                     </div>
                     <div style="text-align:right;">
-                        <h2 style="font-size:15px; color:#7c3aed; margin:0;">${escapeHtml(projectName)}</h2>
+                        <h2 style="font-size:15px; color:#7c3aed; margin:0;">${escapeHtml(isAggregated ? 'สรุปหลายโครงการ' : projectName)}</h2>
                         <p style="font-size:9px; color:#94a3b8; margin:2px 0 0;">วันที่: ${dateStr} | หน้า ${pageNum}/${totalPages}</p>
                     </div>
                 </div>`;
 
             const tableHead = `<thead><tr style="background:#f1f5f9;">
                 <th style="border:1px solid #ddd; padding:7px; width:30px;">#</th>
-                <th style="border:1px solid #ddd; padding:7px;">รายการ / รายละเอียด</th>
-                <th style="border:1px solid #ddd; padding:7px; width:85px;">ราคา/หน่วย</th>
+                <th style="border:1px solid #ddd; padding:7px;">${isAggregated ? 'โครงการ' : 'รายการ / รายละเอียด'}</th>
+                <th style="border:1px solid #ddd; padding:7px; width:85px;">${isAggregated ? 'ยอดรวมโครงการ' : 'ราคา/หน่วย'}</th>
                 <th style="border:1px solid #ddd; padding:7px; width:50px;">จำนวน</th>
                 <th style="border:1px solid #ddd; padding:7px; width:95px;">รวม</th>
             </tr></thead>`;
@@ -500,42 +741,40 @@
             let pagesHtml = '';
             for (let p = 0; p < totalPages; p++) {
                 const startIdx = p * ITEMS_PER_PAGE;
-                const pageItems = selectedItems.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+                const pageItems = displayItems.slice(startIdx, startIdx + ITEMS_PER_PAGE);
                 const isLastPage = (p === totalPages - 1);
 
                 let rows = pageItems.map((i, x) => {
                     const linkHtml = i.link ? `<br><a href="${escapeHtml(i.link)}" style="color:#3b82f6;font-size:9px;word-break:break-all;">🔗 ${escapeHtml(i.link).substring(0, 50)}${i.link.length > 50 ? '...' : ''}</a>` : '';
                     return `<tr>
-                        <td style="border:1px solid #ddd;padding:5px;text-align:center;font-size:10px;">${startIdx + x + 1}</td>
-                        <td style="border:1px solid #ddd;padding:5px;font-size:10px;">
-                            <b>${escapeHtml(i.name)}</b>${linkHtml}
-                            ${i.details ? '<br><span style="color:#64748b;font-size:9px;">' + escapeHtml(i.details) + '</span>' : ''}
+                        <td style="border:1px solid #ddd;padding:8px;text-align:center;font-size:10px;">${startIdx + x + 1}</td>
+                        <td style="border:1px solid #ddd;padding:8px;font-size:11px;">
+                            <b style="${isAggregated ? 'font-size:12px; color:#1e293b;' : ''}">${escapeHtml(i.name)}</b>${linkHtml}
+                            ${i.details ? '<br><span style="color:#64748b;font-size:10px;">' + escapeHtml(i.details) + '</span>' : ''}
                         </td>
-                        <td style="border:1px solid #ddd;padding:5px;text-align:right;font-size:10px;">฿${fmtNum(i.price || 0)}</td>
-                        <td style="border:1px solid #ddd;padding:5px;text-align:center;font-size:10px;">${i.qty || 1}</td>
-                        <td style="border:1px solid #ddd;padding:5px;text-align:right;font-weight:bold;color:#2563eb;font-size:10px;">฿${fmtNum(i.total || 0)}</td>
+                        <td style="border:1px solid #ddd;padding:8px;text-align:right;font-size:11px;">฿${fmtNum(i.price || 0)}</td>
+                        <td style="border:1px solid #ddd;padding:8px;text-align:center;font-size:11px;">${i.qty || 1}</td>
+                        <td style="border:1px solid #ddd;padding:8px;text-align:right;font-weight:bold;color:#2563eb;font-size:11px;">฿${fmtNum(i.total || 0)}</td>
                     </tr>`;
                 }).join('');
 
-                // Summary info bar only on first page
                 const infoBar = p === 0 ? `<div style="background:#f5f3ff; border:1px solid #ddd5f9; border-radius:8px; padding:10px 14px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <span style="font-size:10px; color:#7c3aed; font-weight:bold;">🧮 จำนวนชุด: ${qty} ชุด</span>
-                        <span style="margin-left:16px; font-size:10px; color:#64748b;">📦 ${selectedItems.length} รายการที่เลือก</span>
+                        <span style="margin-left:16px; font-size:10px; color:#64748b;">📦 ${isAggregated ? `${displayItems.length} โครงการ` : `${selectedItems.length} รายการ`} ที่รวม</span>
                     </div>
-                    <div style="font-size:10px; color:#64748b;">ราคาต่อ 1 ชุด: <b style="color:#2563eb;">฿${fmtNum(sum)}</b></div>
+                    <div style="font-size:10px; color:#64748b;">ราคารวมต่อชุด: <b style="color:#2563eb;">฿${fmtNum(sum)}</b></div>
                 </div>` : '';
 
-                // Footer totals only on last page
                 let footer = '';
                 if (isLastPage) {
                     footer = `<tfoot>
                         <tr style="background:#eff6ff;">
-                            <td colspan="4" style="border:1px solid #bfdbfe; padding:7px; text-align:right; font-weight:bold;">รวมต่อ 1 ชุด</td>
+                            <td colspan="4" style="border:1px solid #bfdbfe; padding:7px; text-align:right; font-weight:bold;">ยอดรวมวัสดุทั้งหมด</td>
                             <td style="border:1px solid #bfdbfe; padding:7px; text-align:right; color:#2563eb; font-weight:bold;">฿${fmtNum(sum)}</td>
                         </tr>
                         <tr style="background:#f5f3ff;">
-                            <td colspan="4" style="border:1px solid #ddd5f9; padding:7px; text-align:right; font-weight:bold;">× ${qty} ชุด</td>
+                            <td colspan="4" style="border:1px solid #ddd5f9; padding:7px; text-align:right; font-weight:bold;">รวมเป็นเซต (× ${qty} ชุด)</td>
                             <td style="border:1px solid #ddd5f9; padding:7px; text-align:right; color:#7c3aed; font-weight:bold;">× ${qty}</td>
                         </tr>
                         <tr style="background:#fff7ed;">
@@ -793,22 +1032,25 @@
                 loader.style.opacity = '0';
                 setTimeout(() => loader.style.display = 'none', 500);
             }
-            if (user && projectId) loadItems();
+            if (user) {
+                // Modified: No longer auto-show on login
+                // showModeSelection();
+                if (!projectId) {
+                    renderItemsList(); // Show placeholder
+                }
+            }
         });
 
         setTimeout(() => {
             const loader = document.getElementById('calcLoading');
             if (loader && loader.style.display !== 'none') {
                 loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
+                setTimeout(() => loader.style.display = 'none', 400);
             }
-        }, 3500);
+        }, 1800);
 
         initAuth();
     </script>
-    </main>
-    </div>
-    </div>
 </body>
 
 </html>
