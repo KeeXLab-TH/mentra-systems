@@ -98,7 +98,7 @@
     </div>
 
     <!-- Container for Tilt Effect -->
-    <div class="tilt-container perspective-1000 w-full max-w-md mx-4">
+    <div class="tilt-container perspective-1000 w-full max-w-md mx-4 pb-24 md:pb-0 pt-8 md:pt-0">
         <div
             class="login-card w-full p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] relative overflow-visible">
             <!-- แถบสีด้านบน -->
