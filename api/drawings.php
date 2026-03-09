@@ -80,6 +80,19 @@
             border-radius: 14px 0 0 14px;
         }
 
+        .pdf-row.is-confirmed::before {
+            background: linear-gradient(180deg, #22c55e, #10b981);
+        }
+
+        .pdf-row.is-confirmed {
+            border-color: #bbf7d0;
+        }
+
+        .pdf-row.is-confirmed:hover {
+            border-color: #86efac;
+            box-shadow: 0 6px 20px -4px rgba(34, 197, 94, 0.14);
+        }
+
         .pdf-row:hover {
             border-color: #fca5a5;
             box-shadow: 0 6px 20px -4px rgba(239, 68, 68, 0.14);
@@ -401,8 +414,17 @@
                     const id = docObj.id;
                     const dateStr = d.createdAt ? new Date(d.createdAt.toDate()).toLocaleDateString('th-TH') : '...';
 
+                    const isConfirmed = d.confirmed === true;
+                    const confirmIcon = isConfirmed ? 'fa-solid fa-check-circle' : 'fa-regular fa-circle';
+                    const confirmText = isConfirmed ? 'คอนเฟิร์มแล้ว' : 'ยังไม่คอนเฟิร์ม';
+                    const confirmBtnClass = isConfirmed ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-400 hover:bg-slate-200';
+
                     const actionBtns = canEdit
-                        ? `<div class="flex ml-2 gap-1">
+                        ? `<div class="flex ml-2 gap-1 items-center">
+                               <button onclick="window.toggleConfirm('${id}', ${isConfirmed})"
+                                    class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all ${confirmBtnClass}" title="เปลี่ยนสถานะคอนเฟิร์ม">
+                                    <i class="${confirmIcon}"></i> ${confirmText}
+                                </button>
                                <button onclick="window.openEditModal('${id}', '${esc(d.name).replace(/'/g, "\\'")}', '${esc(d.url).replace(/'/g, "\\'")}', '${esc(d.desc || '').replace(/'/g, "\\'")}')"
                                     class="flex-shrink-0 w-9 h-9 rounded-xl bg-orange-50 text-orange-400 hover:bg-orange-100 hover:text-orange-600 flex items-center justify-center transition-colors" title="แก้ไขลิงก์">
                                     <i class="fa-solid fa-pen text-sm"></i>
@@ -412,19 +434,23 @@
                                     <i class="fa-solid fa-trash-can text-sm"></i>
                                </button>
                            </div>`
-                        : '';
+                        : `<div class="flex ml-2 items-center">
+                                <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold ${isConfirmed ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'}">
+                                    <i class="${confirmIcon}"></i> ${confirmText}
+                                </span>
+                           </div>`;
 
                     html += `
-                    <div class="pdf-row fade-in">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-red-100 to-orange-100 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-regular fa-file-pdf text-2xl text-red-500"></i>
+                    <div class="pdf-row fade-in ${isConfirmed ? 'is-confirmed' : ''}">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${isConfirmed ? 'from-green-100 to-emerald-100' : 'from-red-100 to-orange-100'} flex items-center justify-center flex-shrink-0">
+                            <i class="fa-regular fa-file-pdf text-2xl ${isConfirmed ? 'text-green-500' : 'text-red-500'}"></i>
                         </div>
                         <div class="flex-1 min-w-0">
                             <div class="font-bold text-slate-800 truncate">${esc(d.name)}</div>
                             ${d.desc ? `<div class="text-xs text-slate-400 mt-0.5 line-clamp-1">${esc(d.desc)}</div>` : ''}
                             <div class="flex items-center gap-3 mt-2 flex-wrap">
                                 <button onclick="window.openPdfPopup('${esc(d.url).replace(/'/g, "\\'")}', '${esc(d.name).replace(/'/g, "\\'")}')"
-                                   class="inline-flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-4 py-1.5 rounded-xl transition-all shadow-sm cursor-pointer">
+                                   class="inline-flex items-center gap-1.5 ${isConfirmed ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white text-xs font-bold px-4 py-1.5 rounded-xl transition-all shadow-sm cursor-pointer">
                                     <i class="fa-solid fa-magnifying-glass text-xs"></i> เปิดดูไฟล์
                                 </button>
                                 <span class="text-[10px] text-slate-400 flex items-center gap-1">
@@ -596,6 +622,20 @@
             if (res.isConfirmed) {
                 await deleteDoc(doc(pdfRef(), id));
                 toast('success', 'ลบลิงก์แล้ว');
+            }
+        };
+
+        // ── Toggle Confirm Status ──────────────────────────────────
+        window.toggleConfirm = async (id, currentStatus) => {
+            if (!canEdit) return;
+            try {
+                await updateDoc(doc(pdfRef(), id), {
+                    confirmed: !currentStatus
+                });
+                toast('success', !currentStatus ? 'คอนเฟิร์มแบบแล้ว' : 'ยกเลิกการคอนเฟิร์ม');
+            } catch (e) {
+                console.error("Error updating confirm status:", e);
+                Swal.fire('Error', 'ไม่สามารถอัปเดตสถานะได้: ' + e.message, 'error');
             }
         };
 
