@@ -182,7 +182,7 @@
     <script type="module">
         import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- Config (ใช้ชุดเดิม) ---
         let firebaseConfig;
@@ -203,69 +203,71 @@
         const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-bom-app';
 
-        // Reference ไปยัง Collection ผู้ใช้
         const userRef = collection(db, 'artifacts', appId, 'public', 'data', 'user_registry');
+        const auth = getAuth(app);
 
         // --- 1. โหลดรายชื่อผู้ใช้ ---
-        onSnapshot(userRef, (snapshot) => {
-            const tbody = document.getElementById('userTableBody');
-            let html = '';
-            let count = 0;
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                onSnapshot(userRef, (snapshot) => {
+                    const tbody = document.getElementById('userTableBody');
+                    let html = '';
+                    let count = 0;
 
-            snapshot.forEach(d => {
-                const u = d.data();
-                count++;
+                    snapshot.forEach(d => {
+                        const u = d.data();
+                        count++;
 
-                // Badge สีตาม Role
-                let roleColor = 'bg-slate-100 text-slate-500';
-                if (u.role === 'admin') roleColor = 'bg-red-100 text-red-600';
-                if (u.role === 'purchasing') roleColor = 'bg-blue-100 text-blue-600';
-                if (u.role === 'material') roleColor = 'bg-orange-100 text-orange-600';
+                        // Badge สีตาม Role
+                        let roleColor = 'bg-slate-100 text-slate-500';
+                        if (u.role === 'admin') roleColor = 'bg-red-100 text-red-600';
+                        if (u.role === 'purchasing') roleColor = 'bg-blue-100 text-blue-600';
+                        if (u.role === 'material') roleColor = 'bg-orange-100 text-orange-600';
 
-                html += `
-                    <tr class="item-row-enter hover:bg-slate-50 transition-colors opacity-0" style="transform: translateY(15px);">
-                        <td class="p-4 font-semibold text-slate-700">${u.name}</td>
-                        <td class="p-4 text-slate-600 font-mono text-xs">${u.username || '-'}</td>
-                        <td class="p-4 text-slate-500 text-xs">${u.email}</td>
-                        <td class="p-4 text-center">
-                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${roleColor}">${u.role}</span>
-                        </td>
-                        <td class="p-4 text-center">
-                            <span class="text-green-600 font-bold text-xs"><i class="fa-solid fa-check-circle"></i> Active</span>
-                        </td>
-                        <td class="p-4 text-center flex justify-center gap-2">
-                             <button onclick="window.changeRole('${d.id}', '${u.role}')" class="magnetic text-slate-400 hover:text-blue-500 transition-colors" title="เปลี่ยนสิทธิ์">
-                                <i class="fa-solid fa-user-gear"></i>
-                            </button>
-                            <button onclick="window.deleteUser('${d.id}', '${u.name}')" class="magnetic text-slate-400 hover:text-red-500 transition-colors" title="ลบผู้ใช้">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
+                        html += `
+                        <tr class="item-row-enter hover:bg-slate-50 transition-colors">
+                            <td class="p-4 font-semibold text-slate-700">${u.name}</td>
+                            <td class="p-4 text-slate-600 font-mono text-xs">${u.username || '-'}</td>
+                            <td class="p-4 text-slate-500 text-xs">${u.email}</td>
+                            <td class="p-4 text-center">
+                                <span class="px-2 py-1 rounded text-[10px] font-bold uppercase ${roleColor}">${u.role}</span>
+                            </td>
+                            <td class="p-4 text-center">
+                                <span class="text-green-600 font-bold text-xs"><i class="fa-solid fa-check-circle"></i> Active</span>
+                            </td>
+                            <td class="p-4 text-center flex justify-center gap-2">
+                                 <button onclick="window.changeRole('${d.id}', '${u.role}')" class="magnetic text-slate-400 hover:text-blue-500 transition-colors" title="เปลี่ยนสิทธิ์">
+                                    <i class="fa-solid fa-user-gear"></i>
+                                </button>
+                                <button onclick="window.deleteUser('${d.id}', '${u.name}')" class="magnetic text-slate-400 hover:text-red-500 transition-colors" title="ลบผู้ใช้">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    });
 
-            if (count === 0) html = '<tr><td colspan="6" class="p-8 text-center text-slate-400">ยังไม่มีผู้ใช้งานในระบบ</td></tr>';
+                    if (count === 0) html = '<tr><td colspan="6" class="p-8 text-center text-slate-400">ยังไม่มีผู้ใช้งานในระบบ</td></tr>';
 
-            tbody.innerHTML = html;
-            document.getElementById('userCount').innerText = `${count} Users`;
+                    tbody.innerHTML = html;
+                    document.getElementById('userCount').innerText = `${count} Users`;
 
-            // GSAP Enter Animation
-            if (typeof gsap !== 'undefined' && html !== '') {
-                gsap.to('.item-row-enter', {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.5,
-                    stagger: 0.04,
-                    ease: "cubic-bezier(0.22, 1, 0.36, 1)",
-                    onComplete: function () {
-                        document.querySelectorAll('.item-row-enter').forEach(el => {
-                            el.style.transform = '';
-                            el.style.opacity = '';
-                            el.classList.remove('item-row-enter', 'opacity-0');
+                    // GSAP Enter Animation
+                    if (typeof gsap !== 'undefined' && html !== '') {
+                        gsap.from('.item-row-enter', {
+                            opacity: 0,
+                            y: 15,
+                            duration: 0.5,
+                            stagger: 0.04,
+                            ease: "cubic-bezier(0.22, 1, 0.36, 1)"
                         });
                     }
+                }, (error) => {
+                    console.error("Firestore error:", error);
+                    document.getElementById('userTableBody').innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500">ไม่สามารถโหลดข้อมูลผู้ใช้ได้ (Permissions Error)</td></tr>`;
                 });
+            } else {
+                document.getElementById('userTableBody').innerHTML = '<tr><td colspan="6" class="p-8 text-center text-slate-400">รอการตรวจสอบสิทธิ์ Firebase...</td></tr>';
             }
         });
 

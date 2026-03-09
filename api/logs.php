@@ -16,16 +16,21 @@
     <title>ประวัติการทำรายการ — Mentra BOM</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Prompt', sans-serif;
             background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 50%, #fff7ed 100%);
             min-height: 100vh;
         }
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(14px);
@@ -34,16 +39,44 @@
             box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
             transition: box-shadow 0.3s ease;
         }
-        .glass-panel:hover { box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1); }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .glass-panel:hover {
+            box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1);
         }
-        .fade-in-up { animation: fadeInUp 0.4s ease-out; }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.4s ease-out;
+        }
     </style>
 </head>
 
@@ -58,13 +91,15 @@
                 <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                     <i class="fa-solid fa-list text-indigo-500"></i> ประวัติการทำรายการล่าสุด
                 </h3>
-                <span class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full font-bold" id="logCount"></span>
+                <span class="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full font-bold"
+                    id="logCount"></span>
             </div>
 
             <div class="overflow-x-auto rounded-xl border border-slate-200/80 bg-white shadow-sm">
                 <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
-                        <tr class="bg-gradient-to-r from-slate-50 to-slate-100/50 text-xs text-slate-500 uppercase tracking-wider sticky top-0 font-semibold border-b border-slate-200">
+                        <tr
+                            class="bg-gradient-to-r from-slate-50 to-slate-100/50 text-xs text-slate-500 uppercase tracking-wider sticky top-0 font-semibold border-b border-slate-200">
                             <th class="p-3 md:p-4 whitespace-nowrap">วันเวลา</th>
                             <th class="p-3 md:p-4 whitespace-nowrap">ผู้ทำรายการ</th>
                             <th class="p-3 md:p-4 whitespace-nowrap">การกระทำ</th>
@@ -112,9 +147,17 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Use the same path as bom.php (artifacts/{appId}/public/data/bom_logs)
-        const FIRESTORE_APP_ID = 'default-bom-app';
-        const logsRef = collection(db, 'artifacts', FIRESTORE_APP_ID, 'public', 'data', 'bom_logs');
+        // Use the same path logic as bom.php
+        let isCanvasEnv = false;
+        let appId = 'default-bom-app';
+        try {
+            if (typeof __firebase_config !== 'undefined') { isCanvasEnv = true; }
+            if (typeof __app_id !== 'undefined') { appId = __app_id; }
+        } catch (e) { }
+
+        const logsRef = isCanvasEnv
+            ? collection(db, 'artifacts', appId, 'public', 'data', 'bom_logs')
+            : collection(db, 'bom_logs');
 
         const escapeHtml = (str) => {
             if (str == null) return '';

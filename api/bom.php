@@ -513,7 +513,7 @@
     <?php include 'sidebar.php'; ?>
 
     <div
-        class="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-6 grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6 relative z-10 w-full">
+        class="w-full px-3 md:px-4 lg:px-6 xl:px-8 py-4 md:py-6 grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-5 relative z-10">
 
         <!-- Sidebar / Left Panel inside Workspace -->
         <div class="xl:col-span-4 space-y-4 md:space-y-5 sidebar-sticky">
@@ -788,18 +788,18 @@
                 <!-- Table Content -->
                 <div
                     class="overflow-x-auto rounded-xl md:border md:border-slate-200/80 flex-grow bg-transparent md:bg-white table-container">
-                    <table class="w-full text-left border-collapse md:min-w-[800px]">
+                    <table class="w-full text-left border-collapse">
                         <thead>
                             <tr
                                 class="bg-gradient-to-r from-slate-50 to-slate-100/50 text-xs text-slate-500 uppercase tracking-wider sticky top-0 z-10 font-semibold border-b border-slate-200">
-                                <th class="p-3 md:p-4 w-16 text-center whitespace-nowrap">รูป</th>
-                                <th class="p-3 md:p-4 min-w-[150px]">ชื่อรายการ</th>
-                                <th class="p-3 md:p-4 min-w-[150px]">รายละเอียด</th>
+                                <th class="p-3 w-14 text-center whitespace-nowrap">รูป</th>
+                                <th class="p-3 md:p-4">ชื่อรายการ / รายละเอียด</th>
                                 <th class="p-3 md:p-4 text-center w-20 whitespace-nowrap">จำนวน</th>
-                                <th class="p-3 md:p-4 text-right min-w-[90px] whitespace-nowrap">รวม</th>
+                                <th class="p-3 md:p-4 text-right min-w-[100px] whitespace-nowrap">ราคา/หน่วย</th>
+                                <th class="p-3 md:p-4 text-right min-w-[100px] whitespace-nowrap">รวม</th>
                                 <th class="p-3 md:p-4 text-center min-w-[120px] whitespace-nowrap">สถานะ</th>
                                 <th class="p-3 md:p-4 text-center w-24 whitespace-nowrap">จัดการ</th>
-                                <th class="p-3 md:p-4 min-w-[120px]">หมายเหตุ</th>
+                                <th class="p-3 md:p-4 min-w-[130px] max-w-[200px]">หมายเหตุ</th>
                             </tr>
                         </thead>
                         <tbody id="bomList" class="text-sm divide-y divide-slate-100">
@@ -1270,15 +1270,21 @@
                     manageBtn = `<span class="text-slate-300 text-xs">-</span>`;
                 }
 
-                h += `<tr class="hover:bg-blue-50/30 transition-colors group border-b border-slate-50 last:border-0">
+                const remarkCell = i.remark
+                    ? `<td class="p-3 align-middle" style="max-width:180px"><span class="block text-xs italic text-slate-500 truncate" title="${escapeHtml(i.remark)}">📝 ${escapeHtml(i.remark)}</span></td>`
+                    : `<td class="p-3 align-middle text-slate-300 text-xs">-</td>`;
+                h += `<tr class="hover:bg-indigo-50/20 transition-colors group border-b border-slate-100 last:border-0">
                     <td class="p-3 text-center align-middle">${img}</td>
-                    <td class="p-3 align-middle font-bold text-sm text-slate-700">${escapeHtml(i.name)} ${linkTag}</td>
-                    <td class="p-3 align-middle text-xs text-slate-500 truncate max-w-[150px]">${escapeHtml(i.details) || '-'}</td>
-                    <td class="p-3 text-center align-middle font-bold">x${i.qty}</td>
-                    <td class="p-3 text-right align-middle font-bold text-blue-600 text-sm">฿${i.total.toLocaleString()}</td>
+                    <td class="p-3 align-middle">
+                        <div class="font-bold text-sm text-slate-800">${escapeHtml(i.name)} ${linkTag}</div>
+                        <div class="text-xs text-slate-400 mt-0.5 line-clamp-2">${escapeHtml(i.details) || ''}</div>
+                    </td>
+                    <td class="p-3 text-center align-middle font-bold text-slate-700">×${i.qty}</td>
+                    <td class="p-3 text-right align-middle text-xs text-slate-500">฿${i.price ? i.price.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</td>
+                    <td class="p-3 text-right align-middle font-extrabold text-blue-600 text-sm">฿${i.total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                     <td class="p-3 align-middle text-center">${getStatusBadge(i.status)}</td>
                     <td class="p-3 text-center align-middle">${manageBtn}</td>
-                    <td class="p-3 align-middle text-xs italic text-slate-400">${escapeHtml(i.remark) || '-'}</td>
+                    ${remarkCell}
                 </tr>`;
             });
 
