@@ -31,156 +31,294 @@
 
         body {
             font-family: 'Prompt', sans-serif;
-            background-color: #0f172a;
-            background-image:
-                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.25) 0px, transparent 60%),
-                radial-gradient(at 100% 100%, rgba(249, 115, 22, 0.2) 0px, transparent 60%),
-                radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.08) 0px, transparent 70%);
+            background-color: #f8fafc;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            letter-spacing: 0.01em;
+            margin: 0;
         }
 
-        .login-card {
-            background: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            transform-style: preserve-3d;
-            will-change: transform;
-            opacity: 0;
+        /* ── Split Layout ── */
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .noise-overlay {
-            position: fixed;
+        .login-left {
+            flex: 1;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            position: relative;
+            display: none;
+            overflow: hidden;
+        }
+
+        @media (min-width: 1024px) {
+            .login-left {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                padding: 4rem;
+            }
+        }
+
+        .login-left::before {
+            content: '';
+            position: absolute;
             inset: 0;
-            z-index: 9999;
-            pointer-events: none;
-            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
-            opacity: 0.035;
-            mix-blend-mode: multiply;
+            background: url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=2071&auto=format&fit=crop') center/cover;
+            opacity: 0.2;
+            mix-blend-mode: luminosity;
         }
 
-        .char {
-            transform: translateY(115%);
-            transition: transform 0.5s;
+        .login-left::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.2) 100%);
         }
 
-        .header-title-clip {
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        .left-content {
+            position: relative;
+            z-index: 10;
+            color: white;
+            max-width: 480px;
+        }
+
+        .login-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            background: radial-gradient(circle at top right, #fff5f5 0%, #f8fafc 100%);
+        }
+
+        /* ── Glassmorphic Form Card ── */
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05), 0 0px 15px rgba(249, 115, 22, 0.05);
+            position: relative;
+            z-index: 10;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 0;
+            opacity: 0.5;
+            animation: float 10s infinite alternate ease-in-out;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: #fb923c;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 250px;
+            height: 250px;
+            background: #60a5fa;
+            bottom: -50px;
+            left: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                transform: translateY(30px) scale(1.1);
+            }
+        }
+
+        /* ── Form Inputs ── */
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            transition: color 0.3s;
+        }
+
+        .input-field {
+            width: 100%;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 0.95rem;
+            color: #1e293b;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #f97316;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
+        }
+
+        .input-field:focus+.input-icon {
+            color: #f97316;
         }
 
         .btn-primary {
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.25s var(--ease-expo), box-shadow 0.25s var(--ease-expo), background-color 0.25s var(--ease-expo);
-            will-change: transform;
+            width: 100%;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 1rem;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-expo);
+            box-shadow: 0 10px 20px -5px rgba(234, 88, 12, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(234, 88, 12, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        /* Initial GSAP States */
+        .gsap-reveal {
+            opacity: 0;
+            transform: translateY(20px);
         }
     </style>
 </head>
 
 <body>
-    <!-- Noise Texture Overlay -->
-    <div class="noise-overlay"></div>
 
-    <!-- Orbs for Parallax BG -->
-    <div
-        class="orb orb-1 absolute rounded-full opacity-30 blur-[90px] w-[55vw] h-[55vw] top-[-25%] left-[-20%] bg-gradient-to-tr from-blue-500 to-blue-700 pointer-events-none -z-10">
-    </div>
-    <div
-        class="orb orb-2 absolute rounded-full opacity-30 blur-[90px] w-[50vw] h-[50vw] bottom-[-25%] right-[-20%] bg-gradient-to-tr from-orange-400 to-orange-600 pointer-events-none -z-10">
-    </div>
-    <div
-        class="orb orb-3 absolute rounded-full opacity-15 blur-[90px] w-[30vw] h-[30vw] top-[30%] left-[40%] bg-gradient-to-tr from-purple-500 to-purple-700 pointer-events-none -z-10">
-    </div>
-
-    <!-- Container for Tilt Effect -->
-    <div class="tilt-container perspective-1000 w-full max-w-md mx-4 pb-24 md:pb-0 pt-8 md:pt-0">
-        <div
-            class="login-card w-full p-8 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] relative overflow-visible">
-            <!-- แถบสีด้านบน -->
-            <div
-                class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-600 to-orange-500 rounded-t-[2rem]">
-            </div>
-
-            <!-- Logo & Header -->
-            <div class="text-center mb-8 title-enter">
-                <div
-                    class="w-20 h-20 bg-white rounded-2xl shadow-md flex items-center justify-center mx-auto mb-4 p-2 logo-enter">
+    <div class="login-wrapper">
+        <!-- ═══ LEFT SIDE (Brand Intro) ═══ -->
+        <div class="login-left">
+            <div class="left-content">
+                <div class="gsap-reveal mb-6 inline-flex p-3 rounded-2xl bg-white shadow-lg border border-slate-100">
                     <img src="Mentra_Solution_Tranparency.png"
                         onerror="this.src='https://cdn-icons-png.flaticon.com/512/2881/2881142.png'" alt="Mentra Logo"
-                        class="w-full h-full object-contain">
+                        class="w-16 h-16 object-contain">
                 </div>
-                <div class="header-title-clip overflow-hidden">
-                    <h1 id="brandTitle" class="text-2xl font-bold text-slate-800 tracking-tight">Mentra Solution Co.,
-                        Ltd</h1>
-                </div>
-                <div class="header-title-clip overflow-hidden mt-1.5">
-                    <p id="subTitle" class="text-slate-400 text-[11px] uppercase tracking-[0.25em] font-bold">BOM
-                        Manager Access</p>
+
+                <h1 class="gsap-reveal text-4xl md:text-5xl font-bold mb-4 leading-tight">สมาร์ทกว่า เร็วกว่า<br><span
+                        class="text-orange-400">แม่นยำทุกโครงการ</span></h1>
+
+                <p class="gsap-reveal text-slate-300 text-lg mb-8 leading-relaxed max-w-lg">เข้าสู่ระบบการจัดการ BOM และ
+                    Drawing ที่ทันสมัยที่สุด เพื่อควบคุมต้นทุนและวัสดุการสร้างของคุณ</p>
+
+                <div class="gsap-reveal flex items-center gap-4 text-sm font-medium text-slate-400">
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-cloud text-blue-400"></i> Cloud Sync
+                    </div>
+                    <div class="w-1 h-1 rounded-full bg-slate-600"></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-green-400"></i>
+                        Secure
+                    </div>
+                    <div class="w-1 h-1 rounded-full bg-slate-600"></div>
+                    <div class="flex items-center gap-2"><i class="fa-solid fa-bolt text-orange-400"></i> Real-time
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Login Form -->
-            <form id="loginForm" class="space-y-4">
-                <div class="field-enter">
-                    <label
-                        class="block text-[11px] font-bold text-slate-400 uppercase tracking-[0.12em] mb-1.5 ml-1">ชื่อผู้ใช้งาน
-                        / Username / Email</label>
-                    <div class="relative group">
-                        <span
-                            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-500 transition-colors">
-                            <i class="fa-solid fa-user text-xs"></i>
-                        </span>
-                        <input type="text" id="userInput" required
-                            class="input-field w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder-slate-300 shadow-sm"
-                            placeholder="admin หรือ user@example.com">
+        <!-- ═══ RIGHT SIDE (Login Form) ═══ -->
+        <div class="login-right">
+            <!-- Decorative blur shapes -->
+            <div class="floating-shape shape-1"></div>
+            <div class="floating-shape shape-2"></div>
+
+            <div class="login-card">
+                <!-- Mobile Logo (Shows only on small screens) -->
+                <div class="lg:hidden text-center mb-6 gsap-form-el">
+                    <div
+                        class="w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center mx-auto mb-3 p-2">
+                        <img src="Mentra_Solution_Tranparency.png"
+                            onerror="this.src='https://cdn-icons-png.flaticon.com/512/2881/2881142.png'"
+                            alt="Mentra Logo" class="w-full h-full object-contain">
                     </div>
                 </div>
 
-                <div class="field-enter">
-                    <label
-                        class="block text-[11px] font-bold text-slate-400 uppercase tracking-[0.12em] mb-1.5 ml-1">รหัสผ่าน
-                        (Password)</label>
-                    <div class="relative group">
-                        <span
-                            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-orange-500 transition-colors">
-                            <i class="fa-solid fa-lock text-xs"></i>
-                        </span>
-                        <input type="password" id="password" required
-                            class="input-field w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm placeholder-slate-300 shadow-sm"
-                            placeholder="••••••••">
+                <div class="text-center mb-8 gsap-form-el">
+                    <h2 class="text-2xl font-bold text-slate-800 tracking-tight">ยินดีต้อนรับ</h2>
+                    <p class="text-slate-500 text-sm mt-1">กรุณาเข้าสู่ระบบเพื่อใช้งาน Mentra BOM Systems</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="input-group gsap-form-el">
+                        <label
+                            class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1">ชื่อผู้ใช้งาน
+                            หรือ อีเมล</label>
+                        <div class="relative">
+                            <input type="text" id="userInput" required class="input-field peer"
+                                placeholder="admin หรือ user@example.com">
+                            <i class="fa-solid fa-user input-icon peer-focus:text-orange-500"></i>
+                        </div>
                     </div>
-                </div>
 
-                <div class="field-enter">
-                    <button type="submit"
-                        class="magnetic btn-primary w-full bg-slate-900 text-white font-bold py-4 rounded-2xl shadow-[0_10px_20px_rgba(15,23,42,0.15)] flex justify-center items-center gap-3 mt-4">
-                        <span class="tracking-wide">เข้าสู่ระบบ</span>
-                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                    </button>
-                </div>
-            </form>
+                    <div class="input-group gsap-form-el">
+                        <label
+                            class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 ml-1 flex justify-between">
+                            <span>รหัสผ่าน</span>
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="password" required class="input-field peer"
+                                placeholder="••••••••">
+                            <i class="fa-solid fa-lock input-icon peer-focus:text-orange-500"></i>
+                        </div>
+                    </div>
 
-            <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col items-center gap-6">
-                <!-- Developer Credit -->
-                <div class="group flex items-center justify-center gap-2 text-xs">
-                    <span class="text-slate-400">พัฒนาระบบโดย</span>
-                    <a href="https://keexlab-th.github.io/" target="_blank"
-                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-full shadow-sm hover:shadow-md hover:border-orange-200 hover:bg-orange-50 transition-all duration-300 no-underline">
-                        <span
-                            class="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-orange-500 animate-pulse"></span>
-                        <span class="font-bold text-slate-700 group-hover:text-orange-600 transition-colors">ธนภูมิ
-                            แดงประดับ</span>
-                        <i
-                            class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-300 group-hover:text-orange-400"></i>
-                    </a>
+                    <div class="gsap-form-el mt-8">
+                        <button type="submit" class="btn-primary">
+                            <span>เข้าสู่ระบบ</span>
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-8 pt-6 border-t border-slate-100 flex flex-col items-center gap-4 gsap-form-el">
+                    <div class="group flex items-center justify-center gap-2 text-xs">
+                        <span class="text-slate-400">พัฒนาระบบโดย</span>
+                        <a href="https://keexlab-th.github.io/" target="_blank"
+                            class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-50 border border-slate-200 rounded-full hover:border-orange-300 hover:text-orange-600 transition-all font-semibold text-slate-600 no-underline">
+                            ธนภูมิ แดงประดับ
+                            <i
+                                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400 group-hover:text-orange-400"></i>
+                        </a>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-medium">&copy; 2026 Mentra Solution Co., Ltd.</p>
                 </div>
-                <p class="text-center text-[10px] text-slate-500 uppercase tracking-widest font-medium">&copy; 2026
-                    Mentra Solution Co., Ltd.</p>
             </div>
         </div>
     </div>
@@ -269,50 +407,41 @@
             }
         };
 
-        // GSAP & High-End Interactions
+        // GSAP Animations
         document.addEventListener('DOMContentLoaded', () => {
-            if (typeof SplitType !== 'undefined') {
-                const title = new SplitType('#brandTitle', { types: 'chars' });
-                const subtitle = new SplitType('#subTitle', { types: 'chars' });
+            gsap.set('.gsap-reveal', { opacity: 0, y: 30 });
+            gsap.set('.gsap-form-el', { opacity: 0, x: 20 });
+            gsap.set('.floating-shape', { scale: 0.8, opacity: 0 });
 
-                gsap.set('.login-card', { opacity: 0, y: 40 });
-                gsap.set('.logo-enter', { opacity: 0, scale: 0.5, y: 20 });
-                gsap.set('.field-enter', { opacity: 0, y: 15 });
+            const tl = gsap.timeline();
 
-                const masterTl = gsap.timeline();
-                masterTl.to('.login-card', { opacity: 1, y: 0, duration: 1, ease: 'expo.out' })
-                    .to('.logo-enter', { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: 'back.out(1.5)' }, "-=0.6")
-                    .to(title.chars, { y: 0, duration: 0.8, stagger: 0.02, ease: 'expo.out' }, "-=0.6")
-                    .to(subtitle.chars, { y: 0, duration: 0.6, stagger: 0.015, ease: 'expo.out' }, "-=0.6")
-                    .to('.field-enter', { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'expo.out' }, "-=0.4");
-            } else {
-                gsap.to('.login-card, .logo-enter, .field-enter', { opacity: 1, y: 0, scale: 1, duration: 0.5 });
+            // Left side reveal (if visible)
+            if (window.innerWidth >= 1024) {
+                tl.to('.gsap-reveal', {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    stagger: 0.15,
+                    ease: "power3.out"
+                });
             }
 
-            if (window.innerWidth >= 768) {
-                const magneticBtn = document.querySelector('.magnetic');
-                if (magneticBtn) {
-                    magneticBtn.addEventListener('mousemove', function (e) {
-                        const rect = this.getBoundingClientRect();
-                        const x = e.clientX - rect.left - rect.width / 2;
-                        const y = e.clientY - rect.top - rect.height / 2;
-                        gsap.to(this, { x: x * 0.25, y: y * 0.25, duration: 0.3, ease: 'power2.out' });
-                    });
+            // Right side (Form elements) reveal
+            tl.to('.gsap-form-el', {
+                opacity: 1,
+                x: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: "power3.out"
+            }, "-=0.4");
 
-                    magneticBtn.addEventListener('mouseleave', function () {
-                        gsap.to(this, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.3)' });
-                    });
-                }
-            }
-
-            document.addEventListener('mousemove', (e) => {
-                const x = (e.clientX / window.innerWidth - 0.5) * 2;
-                const y = (e.clientY / window.innerHeight - 0.5) * 2;
-
-                gsap.to('.orb-1', { x: x * 30, y: y * 30, duration: 1.5, ease: 'power2.out' });
-                gsap.to('.orb-2', { x: x * -40, y: y * -40, duration: 1.5, ease: 'power2.out' });
-                gsap.to('.orb-3', { x: x * 20, y: y * -20, duration: 1.5, ease: 'power2.out' });
-            });
+            // Shapes reveal
+            tl.to('.floating-shape', {
+                scale: 1,
+                opacity: 0.5,
+                duration: 1.5,
+                ease: "elastic.out(1, 0.5)"
+            }, "-=0.5");
         });
     </script>
 </body>

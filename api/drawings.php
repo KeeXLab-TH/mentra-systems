@@ -161,12 +161,20 @@
                 <label class="block text-xs font-bold text-slate-500 uppercase mb-1.5 tracking-wider">
                     <i class="fa-solid fa-folder-tree text-indigo-500 mr-1"></i> เลือกโครงการ
                 </label>
-                <div class="custom-select-wrapper" style="max-width:420px">
-                    <select id="projectDropdown"
-                        onchange="handleProjectChange(this.value, this.options[this.selectedIndex].text)"
-                        class="w-full appearance-none bg-indigo-50 border-2 border-indigo-200 text-slate-800 font-semibold text-sm rounded-xl px-4 py-3 cursor-pointer focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 outline-none transition-all">
-                        <option value="" disabled selected>— กำลังโหลดโครงการ —</option>
-                    </select>
+                <div class="flex items-center gap-2">
+                    <div class="custom-select-wrapper flex-grow" style="max-width:420px">
+                        <select id="projectDropdown"
+                            onchange="handleProjectChange(this.value, this.options[this.selectedIndex].text)"
+                            class="w-full appearance-none bg-indigo-50 border-2 border-indigo-200 text-slate-800 font-semibold text-sm rounded-xl px-4 py-3 cursor-pointer focus:ring-2 focus:ring-indigo-500 focus:border-indigo-400 outline-none transition-all">
+                            <option value="" disabled selected>— กำลังโหลดโครงการ —</option>
+                        </select>
+                    </div>
+                    <!-- Edit Project Button -->
+                    <button id="editProjBtn" onclick="editProjectName()"
+                        class="hidden w-11 h-11 flex-shrink-0 bg-slate-100 hover:bg-orange-100 text-slate-400 hover:text-orange-500 rounded-xl flex items-center justify-center transition-colors border border-slate-200"
+                        title="แก้ไขชื่อโครงการ">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -334,7 +342,13 @@
             document.getElementById('contentArea').classList.remove('hidden');
             document.getElementById('projNameDisplay').textContent = projectName;
 
-            if (canEdit) document.getElementById('addLinkBtn').classList.remove('hidden');
+            if (canEdit) {
+                document.getElementById('addLinkBtn').classList.remove('hidden');
+                document.getElementById('editProjBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('addLinkBtn').classList.add('hidden');
+                document.getElementById('editProjBtn').classList.add('hidden');
+            }
 
             loadPdfLinks(projectId);
         };
@@ -428,6 +442,53 @@
                 document.getElementById('pdfLinksList').innerHTML =
                     `<div class="text-center py-10 text-red-400"><i class="fa-solid fa-triangle-exclamation text-2xl mb-2 block"></i>โหลดไม่สำเร็จ: ${esc(err.message)}</div>`;
             });
+        };
+
+        // ── Edit Project Name ──
+        window.editProjectName = async () => {
+            if (!selectedProjectId) return;
+            const dropdown = document.getElementById('projectDropdown');
+            const currentName = dropdown.options[dropdown.selectedIndex].text;
+
+            const { value: newName } = await Swal.fire({
+                title: 'แก้ไขชื่อโครงการ',
+                input: 'text',
+                inputValue: currentName,
+                inputPlaceholder: 'ชื่อโครงการใหม่...',
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                inputValidator: (value) => {
+                    if (!value.trim()) return 'กรุณาระบุชื่อโครงการ!';
+                }
+            });
+
+            if (newName && newName.trim() !== currentName) {
+                try {
+                    const btn = document.getElementById('editProjBtn');
+                    const origIcon = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    btn.disabled = true;
+
+                    // Update project name in bom_projects collection
+                    const projRef = doc(db, 'artifacts', appId, 'public', 'data', 'bom_projects', selectedProjectId);
+                    await updateDoc(projRef, { name: newName.trim() });
+
+                    // Update UI immediately for snappiness
+                    dropdown.options[dropdown.selectedIndex].text = newName.trim();
+                    if (document.getElementById('projNameDisplay')) {
+                        document.getElementById('projNameDisplay').innerText = newName.trim();
+                    }
+
+                    toast('success', 'เปลี่ยนชื่อโครงการแล้ว');
+
+                    btn.innerHTML = origIcon;
+                    btn.disabled = false;
+                } catch (err) {
+                    console.error("Error updating project name:", err);
+                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถแก้ไขชื่อโครงการได้ เลิกพิมพ์ชื่อที่ยาวเกินไปหรือลองใหม่อีกครั้ง', 'error');
+                }
+            }
         };
 
         // ── global State for Edit ──
