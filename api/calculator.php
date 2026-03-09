@@ -229,21 +229,21 @@
             <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                 <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
                     <button onclick="selectAll()"
-                        class="magnetic hover:bg-white hover:text-blue-600 text-slate-500 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5">
+                        class="hover:bg-white hover:text-blue-600 text-slate-500 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5">
                         <i class="fa-solid fa-check"></i> ทั้งหมด
                     </button>
                     <button onclick="deselectAll()"
-                        class="magnetic hover:bg-white hover:text-slate-700 text-slate-500 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5">
+                        class="hover:bg-white hover:text-slate-700 text-slate-500 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1.5">
                         <i class="fa-solid fa-xmark"></i> ยกเลิก
                     </button>
                 </div>
                 <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
                 <button onclick="window.calcExportPDF()"
-                    class="magnetic bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
                     <i class="fa-solid fa-file-pdf"></i> PDF
                 </button>
                 <button onclick="window.calcExportExcel()"
-                    class="magnetic bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95">
                     <i class="fa-solid fa-file-excel"></i> Excel
                 </button>
             </div>
@@ -552,7 +552,7 @@
                     const someSelected = data.ids.some(id => selectedIds.has(id));
 
                     html += `
-                    <div class="item-row item-row-enter flex items-center gap-4 p-5 rounded-3xl border border-slate-200/80 cursor-pointer mb-3 transition-all ${allSelected ? 'selected-item bg-violet-50/50 border-violet-200 shadow-sm' : 'hover:border-slate-300 hover:bg-slate-50'}" onclick="window.toggleProjectGroup('${pid}')">
+                    <div class="item-row flex items-center gap-4 p-5 rounded-3xl border border-slate-200/80 cursor-pointer mb-3 transition-all ${allSelected ? 'selected-item bg-violet-50/50 border-violet-200 shadow-sm' : 'hover:border-slate-300 hover:bg-slate-50'}" onclick="window.toggleProjectGroup('${pid}')">
                         <div class="custom-check ${allSelected ? 'checked' : someSelected ? 'opacity-50 checked' : ''}"></div>
                         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white flex-shrink-0 shadow-lg shadow-violet-200">
                             <i class="fa-solid fa-folder-tree text-lg"></i>
@@ -575,7 +575,7 @@
                     const isSelected = selectedIds.has(item.id);
                     const statusText = item.status === 'ordered' ? '🚚 สั่งแล้ว' : item.status === 'received' ? '✅ ได้รับ' : item.status === 'cancelled' ? '❌ ยกเลิก' : '⏳ รอ';
                     html += `
-                    <div class="item-row item-row-enter flex items-center gap-3 p-3 md:p-4 rounded-xl border border-slate-200/80 cursor-pointer ${isSelected ? 'selected-item' : ''}" data-id="${escapeHtml(item.id)}" onclick="window.toggleItem('${escapeHtml(item.id)}')">
+                    <div class="item-row flex items-center gap-3 p-3 md:p-4 rounded-xl border border-slate-200/80 cursor-pointer ${isSelected ? 'selected-item' : ''}" data-id="${escapeHtml(item.id)}" onclick="window.toggleItem('${escapeHtml(item.id)}')">
                         <div class="custom-check ${isSelected ? 'checked' : ''}" id="check-${escapeHtml(item.id)}"></div>
                         ${item.image ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-slate-100 flex-shrink-0">` : '<span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 text-slate-300 flex-shrink-0"><i class="fa-regular fa-image"></i></span>'}
                         <div class="flex-grow min-w-0">
@@ -594,27 +594,6 @@
                 });
             }
             document.getElementById('itemsList').innerHTML = html;
-
-            // GSAP Enter Animation
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo('.item-row-enter',
-                    { opacity: 0, y: 15 },
-                    {
-                        opacity: 1,
-                        y: 0,
-                        duration: 0.5,
-                        stagger: 0.04,
-                        ease: "cubic-bezier(0.22, 1, 0.36, 1)",
-                        onComplete: function () {
-                            // นำ class ออกเมื่อ animate เสร็จ (ป้องกันปัญหาสะสม / repaint)
-                            document.querySelectorAll('.item-row-enter').forEach(el => {
-                                el.style.transform = '';
-                                el.classList.remove('item-row-enter', 'opacity-0');
-                            });
-                        }
-                    }
-                );
-            }
         };
 
         const loadItems = async () => {

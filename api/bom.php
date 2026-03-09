@@ -52,28 +52,19 @@
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.82);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 1.5rem;
-            box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
-            transition: box-shadow var(--dur-fast, 0.25s) var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1)),
-                transform var(--dur-fast, 0.25s) var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1));
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.3s ease;
         }
 
         .glass-panel:hover {
-            box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1);
         }
 
-        /* ── Bento Grid base ─────────────────────────────── */
-        .bento-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        /* ── Loading Overlay ─────────────────────────────── */
+        /* Loading Overlay */
         #mainLoading {
             position: fixed;
             inset: 0;
@@ -83,89 +74,13 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            transition: opacity 0.4s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1));
+            transition: opacity 0.5s ease;
         }
 
-        /* ── SweetAlert2 Font ─────────────────────────────── */
         .swal2-popup {
             font-family: 'Prompt', sans-serif;
             border-radius: 1.25rem !important;
         }
-
-        /* ── Scrollbar ───────────────────────────────────── */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        /* ── Table Row Setup (GSAP manages animation) ─────────── */
-        .tbl-row-enter {
-            opacity: 0;
-            transform: translateY(15px);
-            /* GSAP will animate this to 1 and 0 */
-        }
-
-        /* ── Row Hover ────────────────────────────────────── */
-        .table-container tbody tr {
-            transition: background-color 0.2s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1)),
-                box-shadow 0.2s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1));
-        }
-
-        .table-container tbody tr:hover {
-            background-color: rgba(99, 102, 241, 0.03);
-        }
-
-        /* ── Filter Pills ─────────────────────────────────── */
-        button[data-filter] {
-            transition: all 0.2s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1)) !important;
-            will-change: transform;
-        }
-
-        button[data-filter]:hover {
-            transform: translateY(-1px);
-        }
-
-        button[data-filter]:active {
-            transform: scale(0.96);
-        }
-
-        /* ── Form Cards Lift ──────────────────────────────── */
-        #formPanel {
-            transition: opacity 0.3s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1));
-        }
-
-        /* ── Status Badge Reveal ──────────────────────────── */
-        @keyframes badgeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.85);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .status-badge-anim {
-            animation: badgeIn 0.3s var(--ease-expo, cubic-bezier(0.22, 1, 0.36, 1)) both;
-        }
-
-
 
         /* Scrollbar */
         ::-webkit-scrollbar {
@@ -598,10 +513,10 @@
     <?php include 'sidebar.php'; ?>
 
     <div
-        class="bento-grid max-w-[95rem] mx-auto px-4 md:px-6 py-6 pb-24 grid grid-cols-1 xl:grid-cols-12 gap-6 relative z-10 w-full">
+        class="max-w-7xl mx-auto px-3 md:px-6 py-4 md:py-6 grid grid-cols-1 xl:grid-cols-12 gap-4 md:gap-6 relative z-10 w-full">
 
         <!-- Sidebar / Left Panel inside Workspace -->
-        <div class="xl:col-span-3 space-y-6 sidebar-sticky">
+        <div class="xl:col-span-4 space-y-4 md:space-y-5 sidebar-sticky">
             <!-- 1. ส่วนเลือกโครงการ -->
             <div class="glass-panel p-4 md:p-5 border-l-4 border-orange-500 relative overflow-hidden transition-all duration-500 fade-in-up"
                 id="projectPanel">
@@ -784,7 +699,7 @@
         </div>
 
         <!-- Right: Data Table -->
-        <div class="xl:col-span-9">
+        <div class="xl:col-span-8">
             <div
                 class="glass-panel p-3 md:p-6 min-h-[400px] md:min-h-[600px] relative border border-gray-100/50 flex flex-col h-full fade-in-up">
 

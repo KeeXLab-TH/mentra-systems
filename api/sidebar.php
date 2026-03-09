@@ -6,50 +6,66 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 <!-- Note: FontAwesome and Google Fonts are loaded by the parent page's <head> -->
 
-<!-- Global Animation Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://unpkg.com/split-type"></script>
-
-<!-- Noise Texture Overlay -->
-<div class="noise-overlay"></div>
-
-
-
 <style>
-    /* ============================================================
-       MENTRA GLOBAL ANIMATION SYSTEM v4.0
-       cubic-bezier [0.22, 1, 0.36, 1] — Premium Easing
-    ============================================================ */
-    :root {
-        --ease-expo: cubic-bezier(0.22, 1, 0.36, 1);
-        --ease-quart: cubic-bezier(0.25, 1, 0.5, 1);
-        --ease-back: cubic-bezier(0.34, 1.56, 0.64, 1);
-        --dur-fast: 0.25s;
-        --dur-base: 0.45s;
-        --dur-slow: 0.65s;
-        --sidebar-w: 16rem;
-        --sidebar-w-collapsed: 5rem;
-        --header-h: 4rem;
-    }
-
-    /* ── Base ─────────────────────────────────────────────── */
-    *,
-    *::before,
-    *::after {
-        box-sizing: border-box;
-    }
-
+    /* Premium Dashboard Styles */
     body {
         font-family: 'Prompt', sans-serif;
         background-color: #f8fafc;
         margin: 0;
         overflow: hidden;
-        -webkit-font-smoothing: antialiased;
-        letter-spacing: 0.01em;
-        line-height: 1.6;
     }
 
-    /* ── Scrollbar ─────────────────────────────────────────── */
+    /* Sidebar Animations */
+    .sidebar-transition {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .nav-item {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 3px;
+        background: #6366f1;
+        transform: scaleY(0);
+        transition: transform 0.2s ease;
+        transform-origin: left;
+    }
+
+    .nav-item:hover::before,
+    .nav-item.active::before {
+        transform: scaleY(1);
+    }
+
+    .nav-item.active {
+        background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+        color: #6366f1;
+    }
+
+    .nav-item.active i {
+        color: #6366f1;
+    }
+
+    /* Hover Glow */
+    .hover-glow:hover {
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Glassmorphism */
+    .glass-header {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+    }
+
+    /* Hide scrollbar for sidebar */
     .no-scrollbar::-webkit-scrollbar {
         display: none;
     }
@@ -59,362 +75,294 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         scrollbar-width: none;
     }
 
-    /* ── Glass Header ──────────────────────────────────────── */
-    .glass-header {
-        background: rgba(255, 255, 255, 0.88);
-        backdrop-filter: blur(16px) saturate(180%);
-        -webkit-backdrop-filter: blur(16px) saturate(180%);
-        border-bottom: 1px solid rgba(226, 232, 240, 0.5);
-        transition: box-shadow var(--dur-fast) var(--ease-expo);
-    }
-
-    .glass-header:hover {
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
-    }
-
-    /* ── Sidebar Wrapper ────────────────────────────────────── */
-    .sidebar-transition {
-        transition:
-            width var(--dur-base) var(--ease-expo),
-            transform var(--dur-base) var(--ease-expo),
-            opacity var(--dur-fast) var(--ease-expo);
-    }
-
-    /* ── Nav Items ─────────────────────────────────────────── */
-    .nav-item {
-        position: relative;
-        overflow: hidden;
-        border-radius: 0.75rem;
-        transition:
-            background var(--dur-fast) var(--ease-expo),
-            color var(--dur-fast) var(--ease-expo),
-            transform var(--dur-fast) var(--ease-expo);
-        will-change: transform;
-    }
-
-    /* Left accent bar */
-    .nav-item::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%) scaleY(0);
-        transform-origin: center;
-        width: 3px;
-        height: 60%;
-        background: linear-gradient(180deg, #818cf8, #6366f1);
-        border-radius: 0 2px 2px 0;
-        transition: transform var(--dur-fast) var(--ease-back);
-    }
-
-    .nav-item:hover::before,
-    .nav-item.active::before {
-        transform: translateY(-50%) scaleY(1);
-    }
-
-    /* Ripple bg on hover */
-    .nav-item::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: rgba(99, 102, 241, 0.0);
-        border-radius: inherit;
-        transition: background var(--dur-fast) var(--ease-expo);
-    }
-
-    .nav-item:hover::after {
-        background: rgba(99, 102, 241, 0.06);
-    }
-
-    .nav-item.active {
-        background-color: #f97316;
-        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
-    }
-
-    .nav-item.active .menu-text {
-        color: white;
-    }
-
-    .nav-item.active i {
-        color: white;
-        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
-    }
-
-    /* Micro-lift on click */
-    .nav-item:active {
-        transform: scale(0.97);
-    }
-
-    /* ── Stagger Entrance ──────────────────────────────────── */
-    @keyframes m-fadeSlideUp {
-        from {
-            opacity: 0;
-            transform: translateY(14px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes m-fadeSlideIn {
-        from {
-            opacity: 0;
-            transform: translateX(-10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes m-scaleIn {
-        from {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    .m-enter {
-        animation: m-fadeSlideUp var(--dur-base) var(--ease-expo) both;
-        animation-delay: calc(var(--i, 0) * 55ms);
-    }
-
-    .m-enter-x {
-        animation: m-fadeSlideIn var(--dur-base) var(--ease-expo) both;
-        animation-delay: calc(var(--i, 0) * 50ms);
-    }
-
-    .m-enter-scale {
-        animation: m-scaleIn var(--dur-base) var(--ease-expo) both;
-        animation-delay: calc(var(--i, 0) * 60ms);
-    }
-
-    /* Nav items stagger */
-    .nav-item {
-        animation: m-fadeSlideIn var(--dur-base) var(--ease-expo) both;
-    }
-
-    #desktop-sidebar .nav-item:nth-child(1) {
-        animation-delay: 80ms;
-    }
-
-    #desktop-sidebar .nav-item:nth-child(2) {
-        animation-delay: 130ms;
-    }
-
-    #desktop-sidebar .nav-item:nth-child(3) {
-        animation-delay: 180ms;
-    }
-
-    #desktop-sidebar .nav-item:nth-child(4) {
-        animation-delay: 230ms;
-    }
-
-    #desktop-sidebar .nav-item:nth-child(5) {
-        animation-delay: 280ms;
-    }
-
-    /* ── Global Button Micro-interactions ──────────────────── */
-    button,
-    .btn-lift,
-    a[class*="rounded"] {
-        transition:
-            transform var(--dur-fast) var(--ease-expo),
-            box-shadow var(--dur-fast) var(--ease-expo),
-            background-color var(--dur-fast) var(--ease-expo),
-            color var(--dur-fast) var(--ease-expo),
-            border-color var(--dur-fast) var(--ease-expo);
-        will-change: transform;
-    }
-
-    .btn-lift:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-lift:active {
-        transform: translateY(0) scale(0.97);
-    }
-
-    /* ── Glass Panel ───────────────────────────────────────── */
-    .glass-panel {
-        background: rgba(255, 255, 255, 0.82);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        border-radius: 1.5rem;
-        box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.02);
-        transition:
-            box-shadow var(--dur-fast) var(--ease-expo),
-            transform var(--dur-fast) var(--ease-expo);
-    }
-
-    .glass-panel:hover {
-        box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
-    }
-
-    /* ── Noise Texture ─────────────────────────────────────── */
-    .noise-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        pointer-events: none;
-        background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
-        opacity: 0.035;
-        mix-blend-mode: multiply;
-    }
-
-    /* Custom Cursor Removed */
-
-    /* ── Mobile Bottom Tab Bar ─────────────────────────────── */
-    .bottom-tab-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 64px;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        z-index: 50;
-        display: none;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.02);
-    }
-
-    .tab-item {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: #94a3b8;
-        font-size: 10px;
-        font-weight: 500;
-        transition: color 0.3s var(--ease-expo), transform 0.3s var(--ease-expo);
-    }
-
-    .tab-item i {
-        font-size: 18px;
-        margin-bottom: 4px;
-        transition: transform 0.3s var(--ease-expo);
-    }
-
-    .tab-item.active {
-        color: #f97316;
-    }
-
-    .tab-item.active i {
-        transform: translateY(-2px);
-        filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.4));
-    }
-
-    .tab-item:active {
-        transform: scale(0.92);
-    }
-
-    @media (max-width: 767px) {
-        .bottom-tab-bar {
-            display: flex;
-        }
-
-        .desktop-only-sidebar {
-            display: none !important;
-        }
-
-        /* Pad absolute bottom for body to clear tab bar */
-        #main-content-wrapper {
-            padding-bottom: 64px !important;
-        }
-
-        .glass-header {
-            background: rgba(15, 23, 42, 0.95) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-        }
-
-        /* Reset Cursor on mobile Removed */
-    }
-
-    /* ── Fade-in-up (page sections) ────────────────────────── */
-    .fade-in-up {
-        animation: m-fadeSlideUp var(--dur-slow) var(--ease-expo) both;
-    }
-
-    /* ── Skeleton Shimmer ──────────────────────────────────── */
-    @keyframes m-shimmer {
-        0% {
-            background-position: -200% center;
-        }
-
-        100% {
-            background-position: 200% center;
-        }
-    }
-
-    .skeleton {
-        background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-        background-size: 200% auto;
-        animation: m-shimmer 1.5s var(--ease-expo) infinite;
-        border-radius: 0.5rem;
-    }
-
-    /* ── Sidebar Collapsed State ───────────────────────────── */
-    .sidebar-collapsed {
-        width: var(--sidebar-w-collapsed) !important;
-    }
-
-    .sidebar-collapsed .menu-text,
-    .sidebar-collapsed .logo-text {
-        opacity: 0;
-        width: 0;
-        overflow: hidden;
-    }
-
-    /* ── Tooltip ───────────────────────────────────────────── */
+    /* Sidebar Tooltip (Desktop collapsed) */
     .sidebar-tooltip {
         opacity: 0;
         pointer-events: none;
-        transition: opacity var(--dur-fast) var(--ease-expo);
+        transition: opacity 0.2s;
         white-space: nowrap;
     }
 
     .sidebar-collapsed .nav-item:hover .sidebar-tooltip {
         opacity: 1;
+        transform: translateX(0);
     }
 
-    /* ── Hover Glow ────────────────────────────────────────── */
-    .hover-glow:hover {
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), 0 4px 16px rgba(99, 102, 241, 0.15);
+    .sidebar-collapsed .menu-text {
+        display: none;
     }
 
-    /* ── Input Focus Enhancement ───────────────────────────── */
-    input:focus,
-    select:focus,
-    textarea:focus {
-        transition: border-color var(--dur-fast) var(--ease-expo), box-shadow var(--dur-fast) var(--ease-expo);
+    .sidebar-collapsed .logo-text {
+        display: none;
     }
 
-    /* ── Page transition wrapper ───────────────────────────── */
-    #main-content-wrapper {
-        animation: m-fadeSlideUp var(--dur-slow) var(--ease-expo) both;
+    .sidebar-collapsed {
+        width: 5rem;
     }
 
-    /* ── Reduced Motion Support ────────────────────────────── */
-    @media (prefers-reduced-motion: reduce) {
+    /* =================================== */
+    /* MOBILE BOTTOM TAB BAR               */
+    /* =================================== */
+    .mobile-bottom-nav {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 68px;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-top: 1px solid rgba(99, 102, 241, 0.3);
+        z-index: 100;
+        padding-bottom: env(safe-area-inset-bottom, 4px);
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
+    }
 
-        *,
-        *::before,
-        *::after {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
+    .mobile-bottom-nav-inner {
+        display: flex;
+        height: 100%;
+        align-items: stretch;
+    }
+
+    .mob-nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        color: rgba(148, 163, 184, 0.8);
+        text-decoration: none;
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition: all 0.2s ease;
+        position: relative;
+        padding-top: 4px;
+    }
+
+    .mob-nav-item i {
+        font-size: 18px;
+        transition: all 0.2s ease;
+    }
+
+    .mob-nav-item.active {
+        color: #818cf8;
+    }
+
+    .mob-nav-item.active i {
+        color: #818cf8;
+        filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.6));
+    }
+
+    .mob-nav-item.active::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 20%;
+        right: 20%;
+        height: 2px;
+        background: linear-gradient(90deg, #6366f1, #818cf8);
+        border-radius: 0 0 4px 4px;
+    }
+
+    .mob-nav-item:active {
+        transform: scale(0.92);
+    }
+
+    /* Logout tab special color */
+    .mob-nav-item.logout-tab {
+        color: rgba(239, 68, 68, 0.7);
+    }
+
+    .mob-nav-item.logout-tab.active,
+    .mob-nav-item.logout-tab:hover {
+        color: #f87171;
+    }
+
+    .mob-nav-item.logout-tab.active i {
+        color: #f87171;
+        filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.5));
+    }
+
+    @media (max-width: 767px) {
+        .mobile-bottom-nav {
+            display: block;
+        }
+
+        body {
+            padding-bottom: 68px;
+            overflow: auto !important;
+        }
+
+        #main-content-wrapper {
+            overflow: auto !important;
+        }
+
+        main {
+            overflow: visible !important;
+        }
+
+        /* Hide desktop sidebar on mobile */
+        #desktop-sidebar {
+            display: none !important;
+        }
+    }
+
+    /* =================================== */
+    /* MOBILE HEADER - GRADIENT/COLORED    */
+    /* =================================== */
+    .mobile-header {
+        display: none;
+        background: linear-gradient(135deg, #0f172a 0%, #312e81 50%, #1e1b4b 100%);
+        height: 60px;
+        padding: 0 16px;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        border-bottom: 1px solid rgba(99, 102, 241, 0.4);
+    }
+
+    .mobile-header-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .mobile-header-logo img {
+        height: 32px;
+        width: auto;
+        object-fit: contain;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 3px;
+    }
+
+    .mobile-header-logo-text {
+        font-family: 'Prompt', sans-serif;
+        font-weight: 800;
+        font-size: 17px;
+        color: white;
+        letter-spacing: -0.02em;
+        line-height: 1;
+    }
+
+    .mobile-header-logo-text span {
+        color: #818cf8;
+        font-weight: 300;
+    }
+
+    .mobile-user-avatar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .avatar-wrap {
+        position: relative;
+    }
+
+    .avatar-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #818cf8);
+        border: 2px solid rgba(129, 140, 248, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 800;
+        color: white;
+        letter-spacing: -0.02em;
+        box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+        font-family: 'Prompt', sans-serif;
+    }
+
+    .avatar-crown {
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 11px;
+        line-height: 1;
+    }
+
+    .online-dot {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        background: #22c55e;
+        border-radius: 50%;
+        border: 2px solid #0f172a;
+        animation: pulse-online 2s infinite;
+    }
+
+    @keyframes pulse-online {
+
+        0%,
+        100% {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+        }
+
+        50% {
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+        }
+    }
+
+    .user-info-text {
+        text-align: right;
+    }
+
+    .user-info-name {
+        font-size: 12px;
+        font-weight: 700;
+        color: white;
+        line-height: 1.2;
+        font-family: 'Prompt', sans-serif;
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .user-info-status {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        justify-content: flex-end;
+    }
+
+    .user-info-status-dot {
+        width: 6px;
+        height: 6px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: pulse-online 2s infinite;
+    }
+
+    .user-info-status-text {
+        font-size: 9px;
+        color: rgba(134, 239, 172, 0.9);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-family: 'Prompt', sans-serif;
+    }
+
+    @media (max-width: 767px) {
+        .mobile-header {
+            display: flex;
+        }
+
+        .glass-header {
+            display: none !important;
         }
     }
 </style>
@@ -428,133 +376,161 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 </div>
 
 <!-- ========================================== -->
+<!-- MOBILE HEADER (Colored, App-style)         -->
+<!-- ========================================== -->
+<div class="mobile-header" id="mobileHeader">
+    <!-- Left: Logo + Name -->
+    <div class="mobile-header-logo">
+        <img src="Mentra_Solution_Tranparency.png"
+            onerror="this.src='https://cdn-icons-png.flaticon.com/512/2881/2881142.png'" alt="Mentra Logo">
+        <div class="mobile-header-logo-text">
+            Mentra <span>BOM</span>
+        </div>
+    </div>
+
+    <!-- Right: User Avatar + Name + Online -->
+    <div class="mobile-user-avatar"
+        onclick="if(window.handleLogout) window.handleLogout(); else window.location.href='index.php';">
+        <div class="user-info-text">
+            <div class="user-info-name" id="mobileUserName">กำลังโหลด...</div>
+            <div class="user-info-status">
+                <div class="user-info-status-dot"></div>
+                <span class="user-info-status-text">Online</span>
+            </div>
+        </div>
+        <div class="avatar-wrap">
+            <div id="mobileAvatarCrown" class="avatar-crown" style="display:none;">👑</div>
+            <div class="avatar-circle" id="mobileAvatarInitial">?</div>
+            <div class="online-dot"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
 <!-- DASHBOARD WRAPPER START                    -->
 <!-- ========================================== -->
 <div class="flex h-screen bg-slate-50 overflow-hidden font-prompt w-full">
 
-    <!-- OVERLAY FOR MOBILE (Kept for compatibility, no longer used for sidebar) -->
+    <!-- OVERLAY FOR MOBILE -->
     <div id="mobile-overlay"
         class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden backdrop-blur-sm transition-opacity"
         onclick="toggleMobileSidebar()"></div>
 
-    <!-- DESKTOP SIDEBAR -->
+    <!-- SIDEBAR (Desktop only) -->
     <aside id="desktop-sidebar"
-        class="desktop-only-sidebar sidebar-transition relative z-50 h-screen w-64 bg-[#0f172a] text-slate-300 border-r border-[#1e293b] flex flex-col shadow-2xl">
+        class="sidebar-transition fixed md:relative z-50 h-screen w-64 bg-slate-900 text-slate-300 border-r border-slate-800 flex flex-col shadow-2xl transform -translate-x-full md:translate-x-0">
 
         <!-- Logo Area -->
-        <div class="h-16 flex items-center px-5 border-b border-[#1e293b] bg-[#020617]/50 overflow-hidden">
+        <div class="h-16 flex items-center px-4 border-b border-slate-800/60 bg-slate-950/50 overflow-hidden">
             <div class="flex items-center flex-shrink-0">
-                <div class="bg-white p-1.5 rounded-xl shadow-inner border border-white/20">
+                <div class="bg-white/95 p-1 rounded-lg shadow-sm border border-slate-700/50">
                     <img src="Mentra_Solution_Tranparency.png"
                         onerror="this.src='https://cdn-icons-png.flaticon.com/512/2881/2881142.png'" alt="Mentra Logo"
-                        class="h-6 w-auto object-contain transition-all duration-300 logo-img">
+                        class="h-7 w-auto object-contain transition-all duration-300 logo-img">
                 </div>
-                <span
-                    class="logo-text ml-3 font-semibold text-white tracking-widest text-sm whitespace-nowrap uppercase">
-                    Mentra <span class="text-indigo-400 font-light ml-1">BOM</span>
+                <span class="logo-text ml-3 font-bold text-white tracking-wide text-lg whitespace-nowrap">
+                    Mentra <span class="text-indigo-400 font-light">BOM</span>
                 </span>
             </div>
+
+            <!-- Close button for mobile -->
+            <button class="md:hidden ml-auto text-slate-400 hover:text-white" onclick="toggleMobileSidebar()">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
         </div>
 
         <!-- Navigation Links -->
-        <div class="flex-1 overflow-y-auto no-scrollbar py-6 px-4 space-y-1.5">
-            <p class="logo-text px-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 mt-2">
-                Workspace
+        <div class="flex-1 overflow-y-auto no-scrollbar py-4 px-3 space-y-1">
+            <p class="logo-text px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-2">Main Menu
             </p>
 
             <a href="bom.php"
-                class="magnetic nav-item flex items-center px-4 py-3.5 rounded-xl transition-all hover:bg-slate-800/60 hover:text-white group <?php echo $currentPage == 'bom.php' ? 'active' : ''; ?>">
+                class="nav-item flex items-center px-3 py-3 rounded-xl transition-all hover:bg-slate-800/50 hover:text-white group <?php echo $currentPage == 'bom.php' ? 'active' : ''; ?>">
                 <i
-                    class="fa-solid fa-cubes text-sm w-6 text-center group-hover:text-orange-400 <?php echo $currentPage == 'bom.php' ? 'text-orange-400' : 'text-slate-400'; ?> transition-colors"></i>
+                    class="fa-solid fa-cubes text-lg w-6 text-center group-hover:text-indigo-400 <?php echo $currentPage == 'bom.php' ? 'text-indigo-400' : 'text-slate-400'; ?> transition-colors"></i>
                 <span class="menu-text ml-3 font-medium text-sm">BOM Manager</span>
                 <div
-                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded shadow-lg z-50 ml-2 tracking-wide">
+                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50 ml-2">
                     BOM Manager</div>
             </a>
 
             <a href="drawings.php"
-                class="magnetic nav-item flex items-center px-4 py-3.5 rounded-xl transition-all hover:bg-slate-800/60 hover:text-white group <?php echo $currentPage == 'drawings.php' ? 'active' : ''; ?>">
+                class="nav-item flex items-center px-3 py-3 rounded-xl transition-all hover:bg-slate-800/50 hover:text-white group <?php echo $currentPage == 'drawings.php' ? 'active' : ''; ?>">
                 <i
-                    class="fa-regular fa-file-pdf text-sm w-6 text-center group-hover:text-orange-400 <?php echo $currentPage == 'drawings.php' ? 'text-orange-400' : 'text-slate-400'; ?> transition-colors"></i>
+                    class="fa-regular fa-file-pdf text-lg w-6 text-center group-hover:text-indigo-400 <?php echo $currentPage == 'drawings.php' ? 'text-indigo-400' : 'text-slate-400'; ?> transition-colors"></i>
                 <span class="menu-text ml-3 font-medium text-sm">แบบโครงสร้าง</span>
                 <div
-                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded shadow-lg z-50 ml-2 tracking-wide">
-                    Drawings</div>
+                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50 ml-2">
+                    แบบโครงสร้าง (Drawings)</div>
             </a>
 
             <a href="calculator.php"
-                class="magnetic nav-item flex items-center px-4 py-3.5 rounded-xl transition-all hover:bg-slate-800/60 hover:text-white group <?php echo $currentPage == 'calculator.php' ? 'active' : ''; ?>">
+                class="nav-item flex items-center px-3 py-3 rounded-xl transition-all hover:bg-slate-800/50 hover:text-white group <?php echo $currentPage == 'calculator.php' ? 'active' : ''; ?>">
                 <i
-                    class="fa-solid fa-calculator text-sm w-6 text-center group-hover:text-orange-400 <?php echo $currentPage == 'calculator.php' ? 'text-orange-400' : 'text-slate-400'; ?> transition-colors"></i>
+                    class="fa-solid fa-calculator text-lg w-6 text-center group-hover:text-indigo-400 <?php echo $currentPage == 'calculator.php' ? 'text-indigo-400' : 'text-slate-400'; ?> transition-colors"></i>
                 <span class="menu-text ml-3 font-medium text-sm">คำนวณราคา</span>
                 <div
-                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded shadow-lg z-50 ml-2 tracking-wide">
-                    Calculator</div>
+                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50 ml-2">
+                    คำนวณราคา (Calculator)</div>
             </a>
 
-            <p class="logo-text px-3 text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-3 mt-8">System
+            <p class="logo-text px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">System
             </p>
 
             <a href="logs.php"
-                class="magnetic nav-item flex items-center px-4 py-3.5 rounded-xl transition-all hover:bg-slate-800/60 hover:text-white group <?php echo $currentPage == 'logs.php' ? 'active' : ''; ?>">
+                class="nav-item flex items-center px-3 py-3 rounded-xl transition-all hover:bg-slate-800/50 hover:text-white group <?php echo $currentPage == 'logs.php' ? 'active' : ''; ?>">
                 <i
-                    class="fa-solid fa-clock-rotate-left text-sm w-6 text-center group-hover:text-orange-400 <?php echo $currentPage == 'logs.php' ? 'text-orange-400' : 'text-slate-400'; ?> transition-colors"></i>
-                <span class="menu-text ml-3 font-medium text-sm">Action Logs</span>
+                    class="fa-solid fa-clock-rotate-left text-lg w-6 text-center group-hover:text-indigo-400 <?php echo $currentPage == 'logs.php' ? 'text-indigo-400' : 'text-slate-400'; ?> transition-colors"></i>
+                <span class="menu-text ml-3 font-medium text-sm">ประวัติการทำรายการ</span>
                 <div
-                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-[10px] px-2 py-1 rounded shadow-lg z-50 ml-2 tracking-wide">
-                    Logs</div>
+                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50 ml-2">
+                    ประวัติ (Logs)</div>
             </a>
 
         </div>
 
         <!-- Footer / User / Logout -->
-        <div class="p-4 border-t border-[#1e293b] bg-[#020617]/50">
+        <div class="p-4 border-t border-slate-800/60 bg-slate-950/30">
+            <!-- Desktop user info -->
+            <div class="logo-text flex items-center gap-3 mb-3 px-1">
+                <div class="relative flex-shrink-0">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-bold text-white text-sm"
+                        id="desktopAvatarInitial">?</div>
+                    <div
+                        class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-950">
+                    </div>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-white font-bold text-xs truncate" id="desktopUserName">--</div>
+                    <div class="text-slate-500 text-[9px] uppercase tracking-widest" id="desktopUserRole">--</div>
+                </div>
+            </div>
             <button
                 onclick="if(window.handleLogout) { window.handleLogout(); } else { window.location.href='index.php'; }"
-                class="magnetic w-full flex items-center justify-center gap-2 bg-slate-800/50 border border-slate-700 hover:bg-red-500 hover:border-red-500 text-slate-300 hover:text-white py-3 rounded-xl transition-all duration-300 font-medium text-xs tracking-wide group">
-                <i class="fa-solid fa-power-off group-hover:rotate-90 transition-transform duration-300"></i>
-                <span class="menu-text uppercase tracking-wider">Log Out</span>
+                class="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2.5 rounded-xl transition-all duration-300 font-medium text-sm group">
+                <i class="fa-solid fa-right-from-bracket group-hover:-translate-x-1 transition-transform"></i>
+                <span class="menu-text">ออกจากระบบ</span>
             </button>
-            <div class="logo-text text-center mt-4 text-[9px] text-slate-500 uppercase tracking-widest leading-relaxed">
-                Mentra Solution Co., Ltd.<br>
-                <span class="text-slate-600">v3.0 Premium Dashboard</span>
+            <div class="logo-text text-center mt-3 text-[9px] text-slate-500">
+                Mentra Solution Co., Ltd. <br> v3.0 Premium Dashboard
             </div>
         </div>
     </aside>
-
-    <!-- MOBILE BOTTOM TAB BAR -->
-    <nav class="bottom-tab-bar">
-        <a href="bom.php" class="tab-item <?php echo $currentPage == 'bom.php' ? 'active' : ''; ?>">
-            <i class="fa-solid fa-cubes"></i>
-            <span>BOM</span>
-        </a>
-        <a href="drawings.php" class="tab-item <?php echo $currentPage == 'drawings.php' ? 'active' : ''; ?>">
-            <i class="fa-regular fa-file-pdf"></i>
-            <span>Drawings</span>
-        </a>
-        <a href="calculator.php" class="tab-item <?php echo $currentPage == 'calculator.php' ? 'active' : ''; ?>">
-            <i class="fa-solid fa-calculator"></i>
-            <span>Calc</span>
-        </a>
-        <a href="logs.php" class="tab-item <?php echo $currentPage == 'logs.php' ? 'active' : ''; ?>">
-            <i class="fa-solid fa-clock-rotate-left"></i>
-            <span>Logs</span>
-        </a>
-        <a href="#"
-            onclick="if(window.handleLogout) { window.handleLogout(); } else { window.location.href='index.php'; }"
-            class="tab-item text-red-400">
-            <i class="fa-solid fa-power-off"></i>
-            <span>Log Out</span>
-        </a>
-    </nav>
 
     <!-- RIGHT CONTENT AREA -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden relative transition-all duration-300 w-full"
         id="main-content-wrapper">
 
-        <!-- Header Topbar -->
-        <header class="glass-header sticky top-0 z-40 px-4 md:px-6 py-4 flex justify-between items-center h-16 w-full">
-            <div class="flex items-center gap-4">
+        <!-- Header Topbar (Desktop only) -->
+        <header
+            class="glass-header sticky top-0 z-40 px-4 py-3 flex justify-between items-center shadow-sm h-16 w-full">
+            <div class="flex items-center gap-3">
+                <!-- Mobile Menu Button -->
+                <button
+                    class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-600 shadow-sm active:bg-slate-50"
+                    onclick="toggleMobileSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
 
                 <!-- Desktop Collapse Button -->
                 <button
@@ -563,26 +539,14 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     <i class="fa-solid fa-bars-staggered" id="collapseIcon"></i>
                 </button>
 
-                <!-- Mobile Header Logo & Text -->
-                <div class="flex md:hidden items-center gap-2">
-                    <div class="bg-white p-1 rounded-md shadow-sm border border-white/20">
-                        <img src="Mentra_Solution_Tranparency.png"
-                            onerror="this.src='https://cdn-icons-png.flaticon.com/512/2881/2881142.png'" alt="Logo"
-                            class="h-5 w-auto object-contain">
-                    </div>
-                    <span class="font-bold text-white tracking-widest text-xs uppercase whitespace-nowrap">
-                        Mentra <span class="text-indigo-400 font-light">BOM</span>
-                    </span>
-                </div>
-
-                <!-- Dynamic Page Title based on the page (Hidden on Mobile) -->
-                <div class="hidden md:flex flex-col">
+                <!-- Dynamic Page Title based on the page -->
+                <div class="flex flex-col">
                     <h2 class="font-bold text-slate-800 text-sm md:text-base leading-tight">
                         <?php
                         if ($currentPage == 'bom.php')
                             echo 'Project Workspace <span class="text-xs font-normal text-slate-500 ml-2 hidden sm:inline" id="visualProjectName"></span>';
                         elseif ($currentPage == 'drawings.php')
-                            echo 'Drawings & Documents';
+                            echo 'Drawings &amp; Documents';
                         elseif ($currentPage == 'calculator.php')
                             echo 'Price Calculator';
                         elseif ($currentPage == 'logs.php')
@@ -597,33 +561,18 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             </div>
 
             <div class="flex items-center gap-3">
-                <!-- User Status Info -->
-                <div class="flex flex-col items-end text-right">
-                    <span id="headerUserName"
-                        class="text-[11px] md:text-xs font-bold text-white md:text-slate-800 tracking-wide capitalize truncate max-w-[150px] md:max-w-[200px]">
-                        กำลังโหลด...
-                    </span>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <div class="relative flex h-1.5 w-1.5">
-                            <span
-                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                <!-- Desktop header user avatar -->
+                <div class="flex items-center gap-2">
+                    <div class="text-right hidden sm:block">
+                        <div class="text-xs font-bold text-slate-700" id="headerUserName">--</div>
+                        <div class="text-[9px] text-slate-400 uppercase tracking-widest" id="headerUserRole">--</div>
+                    </div>
+                    <div class="relative">
+                        <div class="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center overflow-hidden border-2 border-indigo-200 shadow-sm cursor-pointer hover-glow font-bold text-white text-sm"
+                            id="headerAvatarInitial">?</div>
+                        <div
+                            class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white">
                         </div>
-                        <span
-                            class="text-[9px] text-emerald-400 md:text-emerald-500 font-bold uppercase tracking-widest leading-none mt-0.5">Online</span>
-                    </div>
-                </div>
-
-                <!-- User Avatar Premium -->
-                <div class="relative group cursor-pointer">
-                    <div
-                        class="absolute -top-1.5 -right-1.5 z-10 text-yellow-400 drop-shadow-md transform -rotate-12 group-hover:rotate-0 transition-transform">
-                        <i class="fa-solid fa-crown text-[10px] md:text-xs"></i>
-                    </div>
-                    <div
-                        class="h-8 w-8 md:h-10 md:w-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden border-2 border-white md:border-indigo-100 shadow-md hover-glow transition-all">
-                        <span id="headerUserInitial"
-                            class="font-bold text-white text-[12px] md:text-sm uppercase tracking-wider">U</span>
                     </div>
                 </div>
             </div>
@@ -637,16 +586,34 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <!-- PAGE CONTENT BEGINS HERE -->
 
             <script>
-                // Disable normal Mobile Toggle
-                function toggleMobileSidebar() { /* Now using Tab Bar instead */ }
+                // ==============================
+                // Sidebar Toggle Functions
+                // ==============================
+                function toggleMobileSidebar() {
+                    const sidebar = document.getElementById('desktop-sidebar');
+                    const overlay = document.getElementById('mobile-overlay');
+
+                    if (sidebar.classList.contains('-translate-x-full')) {
+                        sidebar.classList.remove('-translate-x-full');
+                        overlay.classList.remove('hidden');
+                        setTimeout(() => overlay.classList.add('opacity-100'), 10);
+                    } else {
+                        sidebar.classList.add('-translate-x-full');
+                        overlay.classList.remove('opacity-100');
+                        setTimeout(() => overlay.classList.add('hidden'), 300);
+                    }
+                }
 
                 function toggleDesktopSidebar() {
                     const sidebar = document.getElementById('desktop-sidebar');
                     sidebar.classList.toggle('sidebar-collapsed');
                 }
 
-                // Sync the hidden span text with the visual UI
+                // ==============================
+                // User Info from localStorage
+                // ==============================
                 document.addEventListener("DOMContentLoaded", () => {
+                    // Sync project name in header
                     const hiddenProjectNode = document.getElementById('headerProjectName');
                     const visualProjectNode = document.getElementById('visualProjectName');
 
@@ -658,22 +625,81 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         observer.observe(hiddenProjectNode, { childList: true, characterData: true, subtree: true });
                     }
 
-                    // Dynamically set user name from LocalStorage
-                    const userStr = localStorage.getItem('mentra_user');
-                    if (userStr) {
-                        try {
-                            const userObj = JSON.parse(userStr);
-                            const nameEl = document.getElementById('headerUserName');
-                            const initialEl = document.getElementById('headerUserInitial');
-                            if (nameEl && userObj.name) {
-                                nameEl.innerText = userObj.name;
-                                if (initialEl) {
-                                    initialEl.innerText = userObj.name.charAt(0);
-                                }
-                            }
-                        } catch (e) { }
+                    // Load user info
+                    try {
+                        const userStr = localStorage.getItem('mentra_user');
+                        const roleStr = localStorage.getItem('mentra_role') || '';
+
+                        if (userStr) {
+                            const user = JSON.parse(userStr);
+                            const name = user.name || 'Unknown';
+                            const initial = name.charAt(0).toUpperCase();
+                            const isAdmin = roleStr === 'admin';
+
+                            // Desktop sidebar
+                            const desktopInit = document.getElementById('desktopAvatarInitial');
+                            const desktopName = document.getElementById('desktopUserName');
+                            const desktopRole = document.getElementById('desktopUserRole');
+                            if (desktopInit) desktopInit.textContent = initial;
+                            if (desktopName) desktopName.textContent = name;
+                            if (desktopRole) desktopRole.textContent = roleStr.toUpperCase();
+
+                            // Desktop header
+                            const headerName = document.getElementById('headerUserName');
+                            const headerRole = document.getElementById('headerUserRole');
+                            const headerInit = document.getElementById('headerAvatarInitial');
+                            if (headerName) headerName.textContent = name;
+                            if (headerRole) headerRole.textContent = roleStr.toUpperCase();
+                            if (headerInit) headerInit.textContent = initial;
+
+                            // Mobile header
+                            const mobileUserName = document.getElementById('mobileUserName');
+                            const mobileAvatarInitial = document.getElementById('mobileAvatarInitial');
+                            const mobileAvatarCrown = document.getElementById('mobileAvatarCrown');
+                            if (mobileUserName) mobileUserName.textContent = name;
+                            if (mobileAvatarInitial) mobileAvatarInitial.textContent = initial;
+                            if (mobileAvatarCrown && isAdmin) mobileAvatarCrown.style.display = 'block';
+                        }
+                    } catch (e) {
+                        console.warn('Could not load user info:', e);
                     }
-
-
                 });
             </script>
+
+            <!-- ========================================== -->
+            <!-- MOBILE BOTTOM TAB BAR                      -->
+            <!-- ========================================== -->
+            <nav class="mobile-bottom-nav" id="mobileBottomNav">
+                <div class="mobile-bottom-nav-inner">
+
+                    <a href="bom.php" class="mob-nav-item <?php echo $currentPage == 'bom.php' ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-cubes"></i>
+                        <span>BOM</span>
+                    </a>
+
+                    <a href="drawings.php"
+                        class="mob-nav-item <?php echo $currentPage == 'drawings.php' ? 'active' : ''; ?>">
+                        <i class="fa-regular fa-file-pdf"></i>
+                        <span>แบบ</span>
+                    </a>
+
+                    <a href="calculator.php"
+                        class="mob-nav-item <?php echo $currentPage == 'calculator.php' ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-calculator"></i>
+                        <span>คำนวณ</span>
+                    </a>
+
+                    <a href="logs.php" class="mob-nav-item <?php echo $currentPage == 'logs.php' ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>ประวัติ</span>
+                    </a>
+
+                    <a href="javascript:void(0)"
+                        onclick="if(window.handleLogout) { window.handleLogout(); } else { window.location.href='index.php'; }"
+                        class="mob-nav-item logout-tab">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>ออก</span>
+                    </a>
+
+                </div>
+            </nav>
