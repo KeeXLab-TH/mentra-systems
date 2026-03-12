@@ -474,6 +474,16 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     คำนวณราคา (Calculator)</div>
             </a>
 
+            <a href="electrical.php"
+                class="nav-item flex items-center px-3 py-3 rounded-xl transition-all hover:bg-slate-800/50 hover:text-white group <?php echo $currentPage == 'electrical.php' ? 'active' : ''; ?>">
+                <i
+                    class="fa-solid fa-bolt text-lg w-6 text-center group-hover:text-indigo-400 <?php echo $currentPage == 'electrical.php' ? 'text-indigo-400' : 'text-slate-400'; ?> transition-colors"></i>
+                <span class="menu-text ml-3 font-medium text-sm">แบบไฟฟ้า</span>
+                <div
+                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50 ml-2">
+                    แบบไฟฟ้า (Electrical)</div>
+            </a>
+
             <a href="payment.php"
                 class="nav-item flex items-center px-3 py-3 rounded-xl transition-all hover:bg-slate-800/50 hover:text-white group <?php echo $currentPage == 'payment.php' ? 'active' : ''; ?>">
                 <i
@@ -579,6 +589,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                             echo '<i class="fa-solid fa-receipt text-emerald-500 mr-2"></i> หลักฐานการโอนเงิน';
                         elseif ($currentPage == 'order_status.php')
                             echo '<i class="fa-solid fa-truck-fast text-indigo-500 mr-2"></i> สถานะการสั่งซื้อ';
+                        elseif ($currentPage == 'electrical.php')
+                            echo '<i class="fa-solid fa-bolt text-amber-500 mr-2"></i> แบบไฟฟ้า';
                         else
                             echo 'Dashboard';
                         ?>
@@ -719,6 +731,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         class="mob-nav-item <?php echo $currentPage == 'order_status.php' ? 'active' : ''; ?>">
                         <i class="fa-solid fa-truck-fast"></i>
                         <span>สถานะ</span>
+                    </a>
+
+                    <a href="electrical.php"
+                        class="mob-nav-item <?php echo $currentPage == 'electrical.php' ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>แบบไฟฟ้า</span>
                     </a>
 
                     <a href="javascript:void(0)"
