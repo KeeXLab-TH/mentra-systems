@@ -474,6 +474,26 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     คำนวณราคา (Calculator)</div>
             </a>
 
+            <a href="payment.php"
+                class="nav-item flex items-center px-3 py-3 rounded-xl transition-all hover:bg-slate-800/50 hover:text-white group <?php echo $currentPage == 'payment.php' ? 'active' : ''; ?>">
+                <i
+                    class="fa-solid fa-receipt text-lg w-6 text-center group-hover:text-indigo-400 <?php echo $currentPage == 'payment.php' ? 'text-indigo-400' : 'text-slate-400'; ?> transition-colors"></i>
+                <span class="menu-text ml-3 font-medium text-sm">หลักฐานการโอน</span>
+                <div
+                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50 ml-2">
+                    หลักฐานการโอนเงิน</div>
+            </a>
+
+            <a href="order_status.php"
+                class="nav-item flex items-center px-3 py-3 rounded-xl transition-all hover:bg-slate-800/50 hover:text-white group <?php echo $currentPage == 'order_status.php' ? 'active' : ''; ?>">
+                <i
+                    class="fa-solid fa-truck-fast text-lg w-6 text-center group-hover:text-indigo-400 <?php echo $currentPage == 'order_status.php' ? 'text-indigo-400' : 'text-slate-400'; ?> transition-colors"></i>
+                <span class="menu-text ml-3 font-medium text-sm">สถานะการสั่งซื้อ</span>
+                <div
+                    class="sidebar-tooltip absolute left-14 bg-slate-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50 ml-2">
+                    สถานะการสั่งซื้อ (Order Status)</div>
+            </a>
+
             <p class="logo-text px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 mt-6">System
             </p>
 
@@ -553,6 +573,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                             echo 'Action Logs';
                         elseif ($currentPage == 'manage_users.php')
                             echo 'User Management';
+                        elseif ($currentPage == 'search.php')
+                            echo '<i class="fa-solid fa-magnifying-glass text-indigo-500 mr-2"></i> ค้นหาวัสดุ';
+                        elseif ($currentPage == 'payment.php')
+                            echo '<i class="fa-solid fa-receipt text-emerald-500 mr-2"></i> หลักฐานการโอนเงิน';
+                        elseif ($currentPage == 'order_status.php')
+                            echo '<i class="fa-solid fa-truck-fast text-indigo-500 mr-2"></i> สถานะการสั่งซื้อ';
                         else
                             echo 'Dashboard';
                         ?>
@@ -677,21 +703,22 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         <span>BOM</span>
                     </a>
 
-                    <a href="drawings.php"
-                        class="mob-nav-item <?php echo $currentPage == 'drawings.php' ? 'active' : ''; ?>">
-                        <i class="fa-regular fa-file-pdf"></i>
-                        <span>แบบ</span>
-                    </a>
-
                     <a href="calculator.php"
                         class="mob-nav-item <?php echo $currentPage == 'calculator.php' ? 'active' : ''; ?>">
                         <i class="fa-solid fa-calculator"></i>
                         <span>คำนวณ</span>
                     </a>
 
-                    <a href="logs.php" class="mob-nav-item <?php echo $currentPage == 'logs.php' ? 'active' : ''; ?>">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                        <span>ประวัติ</span>
+                    <a href="payment.php"
+                        class="mob-nav-item <?php echo $currentPage == 'payment.php' ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>โอนเงิน</span>
+                    </a>
+
+                    <a href="order_status.php"
+                        class="mob-nav-item <?php echo $currentPage == 'order_status.php' ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-truck-fast"></i>
+                        <span>สถานะ</span>
                     </a>
 
                     <a href="javascript:void(0)"

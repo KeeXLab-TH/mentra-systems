@@ -318,11 +318,20 @@
 
     <!-- Items List -->
     <div class="glass-panel p-4 md:p-6 border border-gray-100/50">
-        <div class="flex items-center justify-between mb-4 border-b pb-3 border-slate-100">
-            <h3 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b pb-4 border-slate-100">
+            <h3 class="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2 flex-shrink-0">
                 <i class="fa-solid fa-list-check text-violet-500"></i> เลือกรายการวัสดุ
             </h3>
-            <span class="text-xs text-slate-400" id="selectedCount">เลือกแล้ว 0 รายการ</span>
+            <div class="flex-1 max-w-md w-full relative">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+                </div>
+                <input type="text" id="searchInput" class="bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-xl focus:ring-violet-500 focus:border-violet-500 block w-full pl-10 p-2.5 transition-all shadow-sm" placeholder="ค้นหาชื่อวัสดุ หรือ รายละเอียด..." oninput="window.filterItems()">
+                <button type="button" id="clearSearchBtn" onclick="window.clearSearch()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 hidden">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <span class="text-xs text-slate-400 flex-shrink-0 font-medium" id="selectedCount">เลือกแล้ว 0 รายการ</span>
         </div>
 
         <div id="itemsList" class="space-y-2">
@@ -392,10 +401,12 @@
         }
 
         let items = [];
+        let filteredItems = [];
         let selectedIds = new Set();
         let currentMode = 'per_project'; // 'per_project' or 'all_projects'
         let selectedProjectIds = [];
         let allProjects = [];
+        let searchTerm = '';
 
         const fetchAllProjects = async () => {
             try {
@@ -530,15 +541,19 @@
         window.recalculate = recalculate;
 
         const renderItemsList = () => {
-            if (!items.length) {
-                document.getElementById('itemsList').innerHTML = '<div class="text-center py-12 text-slate-300"><i class="fa-regular fa-folder-open text-3xl"></i><p class="mt-2 text-sm">ไม่มีรายการในโครงการนี้</p></div>';
+            if (!filteredItems.length) {
+                if (searchTerm) {
+                    document.getElementById('itemsList').innerHTML = '<div class="text-center py-12 text-slate-400"><i class="fa-solid fa-magnifying-glass text-3xl mb-3 text-slate-300"></i><p class="text-sm font-medium">ไม่พบรายการ \'<span class="text-violet-500">' + escapeHtml(searchTerm) + '</span>\'</p><p class="text-[10px] mt-1">ลองค้นหาด้วยคำอื่น หรือตรวจสอบตัวสะกดอีกครั้ง</p></div>';
+                } else {
+                    document.getElementById('itemsList').innerHTML = '<div class="text-center py-12 text-slate-300"><i class="fa-regular fa-folder-open text-3xl"></i><p class="mt-2 text-sm">ไม่มีรายการในโครงการนี้</p></div>';
+                }
                 return;
             }
 
             let html = '';
-            if (selectedProjectIds.length > 1) {
+            if (selectedProjectIds.length > 1 && !searchTerm) {
                 const projectSummary = {};
-                items.forEach(i => {
+                filteredItems.forEach(i => {
                     if (!projectSummary[i.projectId]) {
                         projectSummary[i.projectId] = { name: i.projectName, total: 0, count: 0, ids: [] };
                     }
@@ -571,17 +586,17 @@
                     </div>`;
                 });
             } else {
-                items.forEach(item => {
+                filteredItems.forEach(item => {
                     const isSelected = selectedIds.has(item.id);
                     const statusText = item.status === 'ordered' ? '🚚 สั่งแล้ว' : item.status === 'received' ? '✅ ได้รับ' : item.status === 'cancelled' ? '❌ ยกเลิก' : '⏳ รอ';
                     html += `
-                    <div class="item-row flex items-center gap-3 p-3 md:p-4 rounded-xl border border-slate-200/80 cursor-pointer ${isSelected ? 'selected-item' : ''}" data-id="${escapeHtml(item.id)}" onclick="window.toggleItem('${escapeHtml(item.id)}')">
+                    <div class="item-row flex items-center gap-3 p-3 md:p-4 rounded-xl border border-slate-200/80 cursor-pointer mb-2 transition-all ${isSelected ? 'selected-item ring-2 ring-violet-200 border-transparent shadow-sm' : 'hover:border-slate-300 hover:bg-slate-50'}" data-id="${escapeHtml(item.id)}" onclick="window.toggleItem('${escapeHtml(item.id)}')">
                         <div class="custom-check ${isSelected ? 'checked' : ''}" id="check-${escapeHtml(item.id)}"></div>
                         ${item.image ? `<img src="${item.image}" class="w-10 h-10 rounded-lg object-cover border border-slate-100 flex-shrink-0">` : '<span class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 text-slate-300 flex-shrink-0"><i class="fa-regular fa-image"></i></span>'}
                         <div class="flex-grow min-w-0">
                             <div class="flex items-center gap-2">
                                 <p class="font-bold text-sm text-slate-700 truncate">${escapeHtml(item.name)}</p>
-                                ${selectedProjectIds.length > 1 ? `<span class="px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-500 text-[9px] font-bold border border-violet-100 truncate max-w-[100px]">${escapeHtml(item.projectName || 'N/A')}</span>` : ''}
+                                ${selectedProjectIds.length > 1 ? `<span class="px-1.5 py-0.5 rounded-md bg-violet-50 text-violet-500 text-[9px] font-bold border border-violet-100 truncate max-w-[150px]"><i class="fa-solid fa-folder-open mr-1 opacity-70"></i>${escapeHtml(item.projectName || 'N/A')}</span>` : ''}
                             </div>
                             <p class="text-[10px] text-slate-400 truncate">${escapeHtml(item.details) || '-'}</p>
                         </div>
@@ -603,22 +618,81 @@
                     return;
                 }
 
-                let q = query(getItemsRef(), where("projectId", "in", selectedProjectIds.slice(0, 30)));
-                const snap = await getDocs(q);
+                document.getElementById('itemsList').innerHTML = '<div class="text-center py-12 text-slate-300"><i class="fa-solid fa-spinner fa-spin text-2xl text-violet-400 mb-3"></i><p class="text-sm font-medium">กำลังโหลดและประมวลผลข้อมูลวัสดุ...</p><p class="text-[10px] mt-1 opacity-70">รอสักครู่ ระบบกำลังรวบรวมข้อมูลจาก ' + selectedProjectIds.length + ' โครงการ</p></div>';
+
                 items = [];
-                snap.forEach(d => {
-                    const data = d.data();
-                    const p = allProjects.find(x => x.id === data.projectId);
-                    items.push({ id: d.id, ...data, projectName: p ? p.name : 'N/A' });
-                    if (selectedProjectIds.length > 1) selectedIds.add(d.id);
+                // Bypassing the 30-item 'in' query limit using Promise.allSettled with multiple queries
+                // This fetches all items for any number of projects concurrently like we did for global search
+                const fetchPromises = selectedProjectIds.map(pid => {
+                    const qItem = query(getItemsRef(), where("projectId", "==", pid));
+                    return getDocs(qItem);
                 });
-                items.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+                const results = await Promise.allSettled(fetchPromises);
+                
+                results.forEach((result, index) => {
+                    if (result.status === "fulfilled") {
+                        const snap = result.value;
+                        const pid = selectedProjectIds[index];
+                        const p = allProjects.find(x => x.id === pid);
+                        const pName = p ? p.name : 'N/A';
+                        
+                        snap.forEach(d => {
+                            const data = d.data();
+                            items.push({ id: d.id, ...data, projectName: pName });
+                            if (selectedProjectIds.length > 1) selectedIds.add(d.id);
+                        });
+                    } else {
+                        console.warn(`Failed to fetch items for project ${selectedProjectIds[index]}:`, result.reason);
+                    }
+                });
+
+                // In-memory sort by item name using Thai locale
+                items.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th'));
+                
+                // Clear search initially when loading new project contexts
+                document.getElementById('searchInput').value = '';
+                searchTerm = '';
+                document.getElementById('clearSearchBtn').classList.add('hidden');
+                
+                filteredItems = [...items];
                 renderItemsList();
                 recalculate();
             } catch (e) {
                 console.error('Load error:', e);
                 document.getElementById('itemsList').innerHTML = `<div class="text-center py-12 text-red-400"><p class="text-sm">โหลดข้อมูลไม่สำเร็จ: ${escapeHtml(e.message)}</p></div>`;
             }
+        };
+
+        window.filterItems = () => {
+            const input = document.getElementById('searchInput').value;
+            searchTerm = input.trim().toLowerCase();
+            
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (searchTerm.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            if (!searchTerm) {
+                filteredItems = [...items];
+            } else {
+                filteredItems = items.filter(item => {
+                    const nameMatch = (item.name || '').toLowerCase().includes(searchTerm);
+                    const detailMatch = (item.details || '').toLowerCase().includes(searchTerm);
+                    const projMatch = (item.projectName || '').toLowerCase().includes(searchTerm);
+                    return nameMatch || detailMatch || projMatch;
+                });
+            }
+            
+            renderItemsList();
+        };
+
+        window.clearSearch = () => {
+            document.getElementById('searchInput').value = '';
+            window.filterItems();
+            document.getElementById('searchInput').focus();
         };
 
         window.toggleProjectGroup = (pid) => {
