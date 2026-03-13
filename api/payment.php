@@ -295,7 +295,7 @@
     <div class="modal-overlay" id="addModal" onclick="onModalOverlayClick(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="flex items-center justify-between mb-5">
-                <h2 class="text-lg font-extrabold text-slate-800 flex items-center gap-2">
+                <h2 class="text-lg font-extrabold text-slate-800 flex items-center gap-2" id="modalTitleText">
                     <i class="fa-solid fa-image text-emerald-500"></i> เพิ่มหลักฐานการโอน
                 </h2>
                 <button onclick="closeAddModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-red-50 text-slate-500 hover:text-red-500 flex items-center justify-center transition-all">
@@ -365,7 +365,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, onSnapshot }
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, serverTimestamp, onSnapshot, updateDoc }
             from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged }
             from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -402,6 +402,7 @@
         let lightboxImages = [];
         let lightboxIndex = 0;
         let currentRole = localStorage.getItem('mentra_role') || '';
+        let editingId = null;
 
         // ============================
         // File handling
@@ -469,11 +470,29 @@
         // Modal
         // ============================
         window.openAddModal = () => {
+            editingId = null;
+            document.getElementById('modalTitleText').innerHTML = '<i class="fa-solid fa-image text-emerald-500"></i> เพิ่มหลักฐานการโอน';
             pendingImages = [];
             document.getElementById('entryTitle').value = '';
             document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('entryNote').value = '';
             document.getElementById('previewGrid').innerHTML = '';
+            document.getElementById('addModal').classList.add('open');
+        };
+
+        window.openEditModal = (idx) => {
+            const entry = allEntries[idx];
+            if (!entry) return;
+            
+            editingId = entry.id;
+            document.getElementById('modalTitleText').innerHTML = '<i class="fa-solid fa-pen text-amber-500"></i> แก้ไขหลักฐานการโอน';
+            document.getElementById('entryTitle').value = entry.title || '';
+            document.getElementById('entryDate').value = entry.date || new Date().toISOString().split('T')[0];
+            document.getElementById('entryNote').value = entry.note || '';
+            
+            pendingImages = (entry.images || []).map(img => ({ dataUrl: img, name: 'saved_image' }));
+            renderPreviews();
+            
             document.getElementById('addModal').classList.add('open');
         };
 
@@ -516,20 +535,32 @@
                     date: date || new Date().toISOString().split('T')[0],
                     note,
                     images: pendingImages.map(p => p.dataUrl),
-                    imageCount: pendingImages.length,
-                    uploadedBy: localStorage.getItem('mentra_user') ? JSON.parse(localStorage.getItem('mentra_user')).name || 'Unknown' : 'Unknown',
-                    createdAt: serverTimestamp()
+                    imageCount: pendingImages.length
                 };
 
-                const docRef = await addDoc(getProofsRef(), payload);
-                const newEntry = { id: docRef.id, ...payload, createdAt: { seconds: Date.now()/1000 } };
-                allEntries.unshift(newEntry);
+                if (editingId) {
+                    await updateDoc(doc(getProofsRef(), editingId), payload);
+                    const idx = allEntries.findIndex(e => e.id === editingId);
+                    if (idx > -1) {
+                        allEntries[idx] = { ...allEntries[idx], ...payload };
+                    }
+                    closeAddModal();
+                    renderGallery();
+                    Swal.mixin({ toast:true, position:'bottom-end', showConfirmButton:false, timer:3000, timerProgressBar:true })
+                        .fire({ icon:'success', title:'แก้ไขหลักฐานเรียบร้อย!' });
+                } else {
+                    payload.uploadedBy = localStorage.getItem('mentra_user') ? JSON.parse(localStorage.getItem('mentra_user')).name || 'Unknown' : 'Unknown';
+                    payload.createdAt = serverTimestamp();
+                    const docRef = await addDoc(getProofsRef(), payload);
+                    const newEntry = { id: docRef.id, ...payload, createdAt: { seconds: Date.now()/1000 } };
+                    allEntries.unshift(newEntry);
 
-                closeAddModal();
-                renderGallery();
+                    closeAddModal();
+                    renderGallery();
 
-                Swal.mixin({ toast:true, position:'bottom-end', showConfirmButton:false, timer:3000, timerProgressBar:true })
-                    .fire({ icon:'success', title:'บันทึกหลักฐานเรียบร้อย!' });
+                    Swal.mixin({ toast:true, position:'bottom-end', showConfirmButton:false, timer:3000, timerProgressBar:true })
+                        .fire({ icon:'success', title:'บันทึกหลักฐานเรียบร้อย!' });
+                }
             } catch(e) {
                 console.error('Save error:', e);
                 Swal.fire('Error', 'บันทึกไม่สำเร็จ: ' + e.message, 'error');
@@ -613,7 +644,12 @@
                                     class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 px-2.5 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1">
                                     <i class="fa-solid fa-expand"></i> ดูรูป
                                 </button>
-                                ${currentRole === 'admin' ? `<button onclick="deleteEntry('${entry.id}', ${idx})"
+                                ${currentRole === 'admin' ? `
+                                <button onclick="openEditModal(${idx})"
+                                    class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-100 px-2.5 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="deleteEntry('${entry.id}', ${idx})"
                                     class="text-xs bg-red-50 hover:bg-red-100 text-red-500 border border-red-100 px-2.5 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>` : ''}
@@ -686,7 +722,7 @@
             if (!result.isConfirmed) return;
 
             try {
-                await deleteDoc(doc(db, 'payment_proofs', id));
+                await deleteDoc(doc(getProofsRef(), id));
                 allEntries.splice(idx, 1);
                 renderGallery();
                 document.getElementById('galleryStatus').textContent = `${allEntries.length} รายการหลักฐาน`;
