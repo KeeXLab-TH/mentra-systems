@@ -487,7 +487,7 @@
     <!-- ========================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, query, where, getDocs, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // Config
@@ -575,12 +575,112 @@
         initAuth();
 
         // --- Status Badge Helper ---
-        const getStatusBadge = (status) => {
+        const getStatusBadge = (status, itemId) => {
+            const role = localStorage.getItem('mentra_role');
+            const canEdit = ['admin', 'purchasing'].includes(role);
+            let badgeHtml = '';
+
             switch (status) {
-                case 'ordered': return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-truck"></i> สั่งแล้ว</span>';
-                case 'received': return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> ได้ของแล้ว</span>';
-                case 'cancelled': return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> ยกเลิก</span>';
-                default: return '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-hourglass"></i> รอดำเนินการ</span>';
+                case 'ordered': badgeHtml = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-truck"></i> สั่งแล้ว</span>'; break;
+                case 'received': badgeHtml = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-check"></i> ได้ของแล้ว</span>'; break;
+                case 'cancelled': badgeHtml = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-xmark"></i> ยกเลิก</span>'; break;
+                default: badgeHtml = '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shadow-sm"><i class="fa-solid fa-hourglass"></i> รอดำเนินการ</span>'; break;
+            }
+
+            if (canEdit && itemId) {
+                return `<div class="relative inline-block text-left group">
+                            <button type="button" class="focus:outline-none transition-transform active:scale-95" onclick="toggleStatusDropdown('${itemId}')">
+                                ${badgeHtml}
+                                <i class="fa-solid fa-caret-down text-[10px] ml-1 text-slate-400 group-hover:text-indigo-500"></i>
+                            </button>
+                            <div id="dropdown-${itemId}" class="hidden absolute right-0 sm:left-0 sm:right-auto mt-2 w-40 origin-top-right rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden transform opacity-0 scale-95 transition-all duration-200">
+                                <div class="py-1" role="none">
+                                    <a href="#" onclick="updateItemStatus('${itemId}', 'pending'); return false;" class="text-slate-700 hover:bg-slate-50 hover:text-slate-900 block px-4 py-2 text-xs font-medium"><i class="fa-solid fa-hourglass w-4 mr-1 text-slate-400"></i> รอดำเนินการ</a>
+                                    <a href="#" onclick="updateItemStatus('${itemId}', 'ordered'); return false;" class="text-blue-700 hover:bg-blue-50 hover:text-blue-900 block px-4 py-2 text-xs font-medium"><i class="fa-solid fa-truck w-4 mr-1 text-blue-400"></i> สั่งซื้อแล้ว</a>
+                                    <a href="#" onclick="updateItemStatus('${itemId}', 'received'); return false;" class="text-green-700 hover:bg-green-50 hover:text-green-900 block px-4 py-2 text-xs font-medium"><i class="fa-solid fa-check w-4 mr-1 text-green-400"></i> ได้รับของแล้ว</a>
+                                    <a href="#" onclick="updateItemStatus('${itemId}', 'cancelled'); return false;" class="text-red-700 hover:bg-red-50 hover:text-red-900 block px-4 py-2 text-xs font-medium"><i class="fa-solid fa-xmark w-4 mr-1 text-red-400"></i> ยกเลิก</a>
+                                </div>
+                            </div>
+                        </div>`;
+            }
+            return badgeHtml;
+        };
+        
+        // Status Dropdown Toggle
+        window.toggleStatusDropdown = (itemId) => {
+            // Close all other dropdowns
+            document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+                if(el.id !== `dropdown-${itemId}`) {
+                    el.classList.add('hidden');
+                    el.classList.replace('opacity-100', 'opacity-0');
+                    el.classList.replace('scale-100', 'scale-95');
+                }
+            });
+
+            const dropdown = document.getElementById(`dropdown-${itemId}`);
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                // Small delay to allow display:block to apply before animating opacity/transform
+                setTimeout(() => {
+                    dropdown.classList.replace('opacity-0', 'opacity-100');
+                    dropdown.classList.replace('scale-95', 'scale-100');
+                }, 10);
+            } else {
+                dropdown.classList.replace('opacity-100', 'opacity-0');
+                dropdown.classList.replace('scale-100', 'scale-95');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+        };
+
+        // Close dropdowns when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.closest('.group')) {
+                document.querySelectorAll('[id^="dropdown-"]').forEach(el => {
+                    if(!el.classList.contains('hidden')){
+                        el.classList.replace('opacity-100', 'opacity-0');
+                        el.classList.replace('scale-100', 'scale-95');
+                        setTimeout(() => el.classList.add('hidden'), 200);
+                    }
+                });
+            }
+        }
+
+        window.updateItemStatus = async (itemId, newStatus) => {
+            const item = allItems.find(i => i.id === itemId);
+            if(!item) return;
+
+            // Optimistic UI update
+            const oldStatus = item.status;
+            item.status = newStatus;
+            
+            // Hide dropdown
+            const dropdown = document.getElementById(`dropdown-${itemId}`);
+            if(dropdown) {
+                dropdown.classList.replace('opacity-100', 'opacity-0');
+                dropdown.classList.replace('scale-100', 'scale-95');
+                setTimeout(() => dropdown.classList.add('hidden'), 200);
+            }
+
+            // Quick re-render to show updated badge
+            updateSummaryCards();
+            applyFilters();
+
+            try {
+                // Background update to Firebase
+                const itemRef = doc(getItemsRef(), itemId);
+                await updateDoc(itemRef, { status: newStatus });
+                
+                Swal.mixin({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 1500 })
+                    .fire({ icon: 'success', title: 'อัปเดตสถานะแล้ว' });
+            } catch (error) {
+                console.error("Error updating status:", error);
+                // Revert optimistic update
+                item.status = oldStatus;
+                updateSummaryCards();
+                applyFilters();
+                
+                Swal.mixin({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 3000 })
+                    .fire({ icon: 'error', title: 'ไม่สามารถอัปเดตสถานะได้' });
             }
         };
 
@@ -804,7 +904,7 @@
                                     </td>
                                     <td class="p-3 text-center align-middle font-bold text-slate-700" data-label="จำนวน">×${item.qty || 1}</td>
                                     <td class="p-3 text-right align-middle font-extrabold text-indigo-600 text-sm" data-label="ราคารวม">฿${(item.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                                    <td class="p-3 align-middle text-center" data-label="สถานะ">${getStatusBadge(item.status)}</td>
+                                    <td class="p-3 align-middle text-center" data-label="สถานะ">${getStatusBadge(item.status, item.id)}</td>
                                     <td class="p-3 align-middle" data-label="หมายเหตุ">
                                         ${item.remark ? `<span class="text-xs italic text-slate-500 truncate block max-w-[150px]" title="${escapeHtml(item.remark)}">📝 ${escapeHtml(item.remark)}</span>` : '<span class="text-slate-300 text-xs">-</span>'}
                                     </td>
