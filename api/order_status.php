@@ -286,6 +286,128 @@
         .count-animate {
             animation: countUp 0.5s ease-out;
         }
+
+        /* Multiplier Input Group */
+        .multiplier-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99, 102, 241, 0.06);
+            border: 1.5px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 4px 8px;
+            transition: all 0.2s ease;
+        }
+        .multiplier-group:hover,
+        .multiplier-group:focus-within {
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+        }
+        .multiplier-group input {
+            width: 52px;
+            padding: 4px 6px;
+            border: none;
+            background: transparent;
+            font-family: 'Prompt', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #4338ca;
+            text-align: center;
+            outline: none;
+        }
+        .multiplier-group input::placeholder {
+            color: #a5b4fc;
+            font-weight: 400;
+        }
+        .multiplier-group input::-webkit-outer-spin-button,
+        .multiplier-group input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .multiplier-group input[type=number] {
+            -moz-appearance: textfield;
+        }
+        .multiplier-save-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            font-family: 'Prompt', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .multiplier-save-btn:hover {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(99, 102, 241, 0.3);
+        }
+        .multiplier-save-btn:active {
+            transform: translateY(0);
+        }
+        .multiplier-save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .multiplier-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+        }
+        .multiplied-value {
+            color: #4338ca;
+            font-weight: 800;
+        }
+        .original-value {
+            color: #94a3b8;
+            font-size: 10px;
+            text-decoration: line-through;
+            margin-left: 4px;
+        }
+
+        /* Energy Flow Animation */
+        @keyframes energyShimmer {
+            0% { transform: translateX(-150%) skewX(-15deg); }
+            100% { transform: translateX(150%) skewX(-15deg); }
+        }
+        .energy-bar-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #f1f5f9;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        .energy-flow {
+            position: relative;
+            overflow: hidden;
+        }
+        .energy-flow::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 150%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.45), transparent);
+            animation: energyShimmer 1.8s infinite linear;
+            pointer-events: none;
+        }
+        .energy-glow-amber { box-shadow: 0 0 12px rgba(245, 158, 11, 0.5); }
+        .energy-glow-blue { box-shadow: 0 0 12px rgba(59, 130, 246, 0.5); }
+        .energy-glow-green { box-shadow: 0 0 15px rgba(34, 197, 94, 0.6); }
+        .energy-glow-slate { box-shadow: 0 0 8px rgba(148, 163, 184, 0.3); }
     </style>
 </head>
 
@@ -309,8 +431,8 @@
     <div class="max-w-6xl mx-auto px-3 md:px-6 py-4 md:py-6 space-y-5 fade-in-up w-full">
 
         <!-- Page Title Bar -->
-        <div class="glass-panel p-4 md:p-5 border-l-4 border-indigo-500 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div>
+        <div class="glass-panel p-4 md:p-5 border-l-4 border-indigo-500 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex-1">
                 <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">
                     <i class="fa-solid fa-truck-fast mr-1 text-indigo-500"></i> Order Tracking
                 </p>
@@ -319,7 +441,10 @@
                 </h2>
                 <p class="text-xs text-slate-400 mt-0.5" id="lastUpdateText">กำลังโหลดข้อมูล...</p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex-1 w-full sm:w-auto flex justify-center sm:justify-end" id="overallProgressContainer">
+                <!-- UI drawn via JS -->
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
                 <button onclick="window.refreshData()"
                     class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-2xl text-xs font-bold transition-all shadow-lg shadow-indigo-200 flex items-center gap-2 active:scale-95 btn-lift">
                     <i class="fa-solid fa-arrows-rotate"></i> รีเฟรชข้อมูล
@@ -532,6 +657,7 @@
         let filteredItems = [];
         let currentStatusFilter = 'all';
         let searchTerm = '';
+        let projectMultipliers = {}; // { projectId: multiplierValue }
 
         // Logout
         window.handleLogout = () => {
@@ -690,7 +816,14 @@
                 // Load all projects
                 const projSnap = await getDocs(query(getProjectsRef()));
                 allProjects = [];
-                projSnap.forEach(d => allProjects.push({ id: d.id, ...d.data() }));
+                projSnap.forEach(d => {
+                    const projData = { id: d.id, ...d.data() };
+                    allProjects.push(projData);
+                    // Load multiplier from project doc
+                    if (projData.multiplier && projData.multiplier > 0) {
+                        projectMultipliers[projData.id] = projData.multiplier;
+                    }
+                });
 
                 // Load all items from all projects concurrently
                 const fetchPromises = allProjects.map(proj => {
@@ -751,6 +884,46 @@
             document.getElementById('progressPending').style.width = pct(pending) + '%';
             document.getElementById('progressOrdered').style.width = pct(ordered) + '%';
             document.getElementById('progressReceived').style.width = pct(received) + '%';
+
+            // Overall Progress
+            const overallPct = total > 0 ? Math.round((received / total) * 100) : 0;
+            let overallTextColor = 'text-slate-600';
+            let overallBgColor = 'bg-slate-300';
+            let overallBorderColor = 'border-slate-200';
+            let glowClass = 'energy-glow-slate';
+            
+            if (overallPct === 100 && total > 0) {
+                overallTextColor = 'text-green-600 font-extrabold';
+                overallBgColor = 'bg-gradient-to-r from-green-400 via-green-500 to-emerald-500';
+                overallBorderColor = 'border-green-300';
+                glowClass = 'energy-glow-green';
+            } else if (overallPct >= 50) {
+                overallTextColor = 'text-blue-600 font-extrabold';
+                overallBgColor = 'bg-gradient-to-r from-blue-400 via-blue-500 to-violet-500';
+                overallBorderColor = 'border-blue-300';
+                glowClass = 'energy-glow-blue';
+            } else if (overallPct > 0) {
+                overallTextColor = 'text-amber-600 font-extrabold';
+                overallBgColor = 'bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500';
+                overallBorderColor = 'border-amber-300';
+                glowClass = 'energy-glow-amber';
+            }
+
+            const overallContainer = document.getElementById('overallProgressContainer');
+            if (overallContainer) {
+                overallContainer.innerHTML = `
+                    <div class="flex flex-col w-full max-w-sm bg-white/95 px-5 py-3 rounded-2xl border-2 ${overallBorderColor} shadow-md backdrop-blur-md transform transition-all hover:scale-[1.02]">
+                        <div class="flex items-center gap-2 justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-bolt text-indigo-400"></i> Overall Progress</span>
+                            <span class="text-lg md:text-xl font-black ${overallTextColor} tracking-tighter shadow-sm">${overallPct}%</span>
+                        </div>
+                        <div class="w-full h-3 md:h-4 energy-bar-container border border-slate-200/50">
+                            <div class="h-full ${overallBgColor} ${glowClass} transition-all duration-1000 ease-in-out energy-flow relative" style="width: ${overallPct}%">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
         };
 
         // --- Filter & Search ---
@@ -829,6 +1002,9 @@
 
             // Group by project
             const groups = {};
+            const role = localStorage.getItem('mentra_role');
+            const canEditMultiplier = ['admin', 'purchasing'].includes(role);
+
             filteredItems.forEach(item => {
                 const pid = item.projectId || 'unknown';
                 if (!groups[pid]) {
@@ -849,10 +1025,66 @@
             let html = '';
 
             Object.entries(groups).forEach(([pid, group]) => {
+                const mult = projectMultipliers[pid] || 0;
+                const multipliedTotal = mult > 0 ? group.totalValue * mult : group.totalValue;
+
+                const totalGroupItems = group.items.length;
+                let groupProgressPct = 0;
+                if (totalGroupItems > 0) {
+                    groupProgressPct = Math.round((group.statusCounts.received / totalGroupItems) * 100);
+                }
+
+                let progressTextColor = 'text-slate-500';
+                let progressBgColor = 'bg-slate-300';
+                let glowClass = 'energy-glow-slate';
+                
+                if (groupProgressPct === 100 && totalGroupItems > 0) {
+                    progressTextColor = 'text-green-600 font-extrabold';
+                    progressBgColor = 'bg-gradient-to-r from-green-400 via-green-500 to-emerald-500';
+                    glowClass = 'energy-glow-green';
+                } else if (groupProgressPct >= 50) {
+                    progressTextColor = 'text-blue-600 font-extrabold';
+                    progressBgColor = 'bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-500';
+                    glowClass = 'energy-glow-blue';
+                } else if (groupProgressPct > 0) {
+                    progressTextColor = 'text-amber-600 font-extrabold';
+                    progressBgColor = 'bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500';
+                    glowClass = 'energy-glow-amber';
+                }
+
+                const groupProgressHtml = `
+                    <div class="flex flex-col items-end gap-1.5 ml-2 md:ml-4 pl-3 md:pl-5 border-l-2 border-slate-100 justify-center min-w-[120px]">
+                        <div class="flex items-center gap-1.5 w-full justify-between">
+                            <span class="text-[10px] font-bold text-slate-400 hidden sm:inline tracking-wider uppercase">Received</span>
+                            <span class="text-sm md:text-base font-black ${progressTextColor} tracking-tight">${groupProgressPct}%</span>
+                        </div>
+                        <div class="w-full h-2 md:h-2.5 energy-bar-container border border-slate-200/60">
+                            <div class="h-full ${progressBgColor} ${glowClass} transition-all duration-1000 ease-out energy-flow relative" style="width: ${groupProgressPct}%">
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Multiplier UI
+                let multiplierHtml = '';
+                if (canEditMultiplier) {
+                    multiplierHtml = `
+                        <div class="multiplier-group" title="ตัวคูณจำนวนสำหรับทุกรายการในชุดนี้">
+                            <i class="fa-solid fa-xmark text-indigo-400" style="font-size:10px;"></i>
+                            <input type="number" id="mult-${pid}" min="0" step="1" placeholder="—" value="${mult > 0 ? mult : ''}" 
+                                onkeydown="if(event.key==='Enter'){saveMultiplier('${pid}');event.preventDefault();}">
+                            <button class="multiplier-save-btn" onclick="saveMultiplier('${pid}')" id="multBtn-${pid}">
+                                <i class="fa-solid fa-check"></i> บันทึก
+                            </button>
+                        </div>`;
+                } else if (mult > 0) {
+                    multiplierHtml = `<span class="multiplier-badge" title="ตัวคูณ ×${mult}"><i class="fa-solid fa-xmark" style="font-size:8px;"></i> ${mult}</span>`;
+                }
+
                 // Group Header
                 html += `
                 <div class="mb-5">
-                    <div class="project-group-header flex items-center gap-3 p-3 md:p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-white border border-slate-200/60 mb-3 shadow-sm">
+                    <div class="project-group-header flex items-center gap-2 p-3 md:p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-white border border-slate-200/60 mb-3 shadow-sm">
                         <div class="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 border border-slate-200 shadow-sm bg-slate-100">
                             ${group.cover
                         ? `<img src="${group.cover}" class="w-full h-full object-cover">`
@@ -864,14 +1096,22 @@
                             <div class="flex items-center gap-2 mt-0.5 flex-wrap">
                                 <span class="text-[10px] text-slate-400 font-medium">${group.items.length} รายการ</span>
                                 <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                                <span class="text-[10px] font-bold text-indigo-500">฿${group.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                ${mult > 0 
+                                    ? `<span class="text-[10px] font-bold text-indigo-600">฿${multipliedTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                       <span class="text-[9px] text-slate-400 line-through">฿${group.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>`
+                                    : `<span class="text-[10px] font-bold text-indigo-500">฿${group.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>`
+                                }
                             </div>
                         </div>
-                        <div class="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
-                            ${group.statusCounts.pending > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[9px] font-bold border border-slate-200">⏳${group.statusCounts.pending}</span>` : ''}
-                            ${group.statusCounts.ordered > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[9px] font-bold border border-blue-200">🚚${group.statusCounts.ordered}</span>` : ''}
-                            ${group.statusCounts.received > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-green-50 text-green-600 text-[9px] font-bold border border-green-200">✅${group.statusCounts.received}</span>` : ''}
-                            ${group.statusCounts.cancelled > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-red-50 text-red-600 text-[9px] font-bold border border-red-200">❌${group.statusCounts.cancelled}</span>` : ''}
+                        <div class="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+                            ${multiplierHtml}
+                            <div class="flex items-center gap-1 flex-wrap">
+                                ${group.statusCounts.pending > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[9px] font-bold border border-slate-200">⏳${group.statusCounts.pending}</span>` : ''}
+                                ${group.statusCounts.ordered > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[9px] font-bold border border-blue-200">🚚${group.statusCounts.ordered}</span>` : ''}
+                                ${group.statusCounts.received > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-green-50 text-green-600 text-[9px] font-bold border border-green-200">✅${group.statusCounts.received}</span>` : ''}
+                                ${group.statusCounts.cancelled > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-red-50 text-red-600 text-[9px] font-bold border border-red-200">❌${group.statusCounts.cancelled}</span>` : ''}
+                            </div>
+                            ${groupProgressHtml}
                         </div>
                     </div>
 
@@ -902,8 +1142,18 @@
                                         <div class="font-bold text-sm text-slate-800">${escapeHtml(item.name)}</div>
                                         <div class="text-xs text-slate-400 mt-0.5 line-clamp-1">${escapeHtml(item.details) || ''}</div>
                                     </td>
-                                    <td class="p-3 text-center align-middle font-bold text-slate-700" data-label="จำนวน">×${item.qty || 1}</td>
-                                    <td class="p-3 text-right align-middle font-extrabold text-indigo-600 text-sm" data-label="ราคารวม">฿${(item.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                    <td class="p-3 text-center align-middle font-bold text-slate-700" data-label="จำนวน">
+                                        ${mult > 0 
+                                            ? `<span class="multiplied-value">×${(item.qty || 1) * mult}</span><span class="original-value">×${item.qty || 1}</span>`
+                                            : `×${item.qty || 1}`
+                                        }
+                                    </td>
+                                    <td class="p-3 text-right align-middle font-extrabold text-sm" data-label="ราคารวม">
+                                        ${mult > 0
+                                            ? `<span class="multiplied-value">฿${((item.total || 0) * mult).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span><span class="original-value block">฿${(item.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>`
+                                            : `<span class="text-indigo-600">฿${(item.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>`
+                                        }
+                                    </td>
                                     <td class="p-3 align-middle text-center" data-label="สถานะ">${getStatusBadge(item.status, item.id)}</td>
                                     <td class="p-3 align-middle" data-label="หมายเหตุ">
                                         ${item.remark ? `<span class="text-xs italic text-slate-500 truncate block max-w-[150px]" title="${escapeHtml(item.remark)}">📝 ${escapeHtml(item.remark)}</span>` : '<span class="text-slate-300 text-xs">-</span>'}
@@ -919,6 +1169,50 @@
             });
 
             document.getElementById('itemsList').innerHTML = html;
+        };
+
+        // --- Save Multiplier ---
+        window.saveMultiplier = async (projectId) => {
+            const input = document.getElementById(`mult-${projectId}`);
+            const btn = document.getElementById(`multBtn-${projectId}`);
+            if (!input || !btn) return;
+
+            const val = input.value.trim();
+            const multiplier = val ? parseFloat(val) : 0;
+
+            if (multiplier < 0) {
+                Swal.mixin({ toast: true, position: 'top', showConfirmButton: false, timer: 2000 })
+                    .fire({ icon: 'warning', title: 'ตัวคูณต้องเป็นจำนวนบวก' });
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const projRef = doc(getProjectsRef(), projectId);
+                await updateDoc(projRef, { multiplier: multiplier });
+
+                // Update local state
+                if (multiplier > 0) {
+                    projectMultipliers[projectId] = multiplier;
+                } else {
+                    delete projectMultipliers[projectId];
+                }
+
+                // Re-render to reflect changes
+                applyFilters();
+
+                Swal.mixin({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000, timerProgressBar: true })
+                    .fire({ icon: 'success', title: `บันทึกตัวคูณ${multiplier > 0 ? ' ×' + multiplier : ' (ยกเลิก)'} เรียบร้อย` });
+            } catch (error) {
+                console.error('Save multiplier error:', error);
+                Swal.mixin({ toast: true, position: 'bottom-end', showConfirmButton: false, timer: 3000 })
+                    .fire({ icon: 'error', title: 'บันทึกตัวคูณไม่สำเร็จ: ' + error.message });
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> บันทึก';
+            }
         };
 
     </script>

@@ -262,22 +262,55 @@
     <!-- Main Content -->
     <div class="max-w-6xl mx-auto px-3 md:px-6 py-4 md:py-6 space-y-5 fade-in-up w-full">
 
+        <!-- Total Summary Bar -->
+        <div class="glass-panel relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-600 border border-emerald-400/30 p-4 md:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md shadow-emerald-500/20 group z-10 mb-5">
+            <!-- Decorative background elements -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full blur-3xl transform translate-x-1/3 -translate-y-1/3 pointer-events-none group-hover:opacity-20 transition-opacity duration-700"></div>
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl transform -translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50 pointer-events-none"></div>
+            
+            <div class="relative z-10 flex items-center justify-center sm:justify-start gap-4 w-full sm:w-auto text-left">
+                <div class="w-11 h-11 md:w-12 md:h-12 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white flex-shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                    <i class="fa-solid fa-file-invoice-dollar text-xl md:text-2xl drop-shadow-md"></i>
+                </div>
+                <div>
+                    <h2 class="text-[9px] md:text-[10px] font-bold text-emerald-50/90 uppercase tracking-widest mb-0.5">ยอดโอนรวมทั้งหมด (Total Amount)</h2>
+                    <div class="flex items-baseline gap-1">
+                        <span class="text-2xl md:text-3xl font-black text-white tracking-tight drop-shadow-md leading-none" id="totalAmountDisplay">฿0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative z-10 hidden sm:flex items-center">
+                <div class="px-3 py-1.5 rounded-lg bg-black/10 backdrop-blur-sm border border-white/10 flex items-center gap-2 shadow-inner">
+                    <div class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                    </div>
+                    <span class="text-[9px] uppercase font-bold text-emerald-50 tracking-wider">Live Sync</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Page Header -->
         <div class="glass-panel p-5 md:p-6 border-l-4 border-emerald-500 relative overflow-hidden">
             <div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-emerald-400 opacity-5 rounded-full pointer-events-none"></div>
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative z-10">
+                <div class="flex-shrink-0">
                     <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mb-1">
                         <i class="fa-solid fa-receipt mr-1 text-emerald-500"></i>Payment Proofs
                     </p>
                     <h1 class="text-xl md:text-2xl font-extrabold text-slate-800">หลักฐานการโอนเงิน</h1>
                     <p class="text-xs text-slate-400 mt-1" id="galleryStatus">กำลังโหลด...</p>
                 </div>
-                <button onclick="openAddModal()"
-                    class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-5 py-3 rounded-2xl font-bold shadow-lg shadow-emerald-200 transition-all btn-lift active:scale-95 whitespace-nowrap">
-                    <i class="fa-solid fa-plus text-lg"></i>
-                    เพิ่มรายการอัปโหลด
-                </button>
+
+                <div class="flex-shrink-0 w-full sm:w-auto mt-2 sm:mt-0">
+                    <button onclick="openAddModal()"
+                        class="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-5 py-3 rounded-2xl font-bold shadow-lg shadow-emerald-200 transition-all btn-lift active:scale-95 whitespace-nowrap">
+                        <i class="fa-solid fa-plus text-lg"></i>
+                        เพิ่มรายการอัปโหลด
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -315,6 +348,18 @@
                 <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">วันที่โอน</label>
                 <input type="date" id="entryDate"
                     class="w-full px-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 outline-none transition-all text-sm">
+            </div>
+
+            <!-- Amount -->
+            <div class="mb-4">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">จำนวนเงิน (บาท)</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                        <span class="text-emerald-500 font-bold text-sm">฿</span>
+                    </div>
+                    <input type="number" id="entryAmount" min="0" step="0.01" placeholder="0.00"
+                        class="w-full pl-9 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-200 focus:border-emerald-500 outline-none transition-all text-sm font-medium">
+                </div>
             </div>
 
             <!-- Note -->
@@ -475,6 +520,7 @@
             pendingImages = [];
             document.getElementById('entryTitle').value = '';
             document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('entryAmount').value = '';
             document.getElementById('entryNote').value = '';
             document.getElementById('previewGrid').innerHTML = '';
             document.getElementById('addModal').classList.add('open');
@@ -488,6 +534,7 @@
             document.getElementById('modalTitleText').innerHTML = '<i class="fa-solid fa-pen text-amber-500"></i> แก้ไขหลักฐานการโอน';
             document.getElementById('entryTitle').value = entry.title || '';
             document.getElementById('entryDate').value = entry.date || new Date().toISOString().split('T')[0];
+            document.getElementById('entryAmount').value = entry.amount || '';
             document.getElementById('entryNote').value = entry.note || '';
             
             pendingImages = (entry.images || []).map(img => ({ dataUrl: img, name: 'saved_image' }));
@@ -511,6 +558,8 @@
         window.saveEntry = async () => {
             const title = document.getElementById('entryTitle').value.trim();
             const date = document.getElementById('entryDate').value;
+            const amountVal = document.getElementById('entryAmount').value;
+            const amount = amountVal ? parseFloat(amountVal) : null;
             const note = document.getElementById('entryNote').value.trim();
 
             if (!title) {
@@ -533,6 +582,7 @@
                 const payload = {
                     title,
                     date: date || new Date().toISOString().split('T')[0],
+                    amount,
                     note,
                     images: pendingImages.map(p => p.dataUrl),
                     imageCount: pendingImages.length
@@ -580,10 +630,19 @@
             
             unsubEntries = onSnapshot(query(getProofsRef(), orderBy('createdAt', 'desc')), (snap) => {
                 allEntries = [];
-                snap.forEach(d => allEntries.push({ id: d.id, ...d.data() }));
+                let totalAmount = 0;
+                snap.forEach(d => {
+                    const data = d.data();
+                    if (data.amount) totalAmount += Number(data.amount);
+                    allEntries.push({ id: d.id, ...data });
+                });
                 renderGallery();
                 document.getElementById('galleryStatus').textContent =
                     `${allEntries.length} รายการหลักฐาน • คลิกรูปเพื่อดูขนาดใหญ่`;
+                const totalEl = document.getElementById('totalAmountDisplay');
+                if (totalEl) {
+                    totalEl.textContent = `฿${totalAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                }
             }, (e) => {
                 console.error('Load error:', e);
                 document.getElementById('galleryStatus').textContent = 'โหลดข้อมูลล้มเหลว (Permission Denied)';
@@ -628,6 +687,7 @@
                     <!-- Card content -->
                     <div class="p-4">
                         <h3 class="font-bold text-slate-800 text-sm leading-snug mb-1.5 line-clamp-2">${escHtml(entry.title)}</h3>
+                        ${entry.amount ? `<div class="flex items-center gap-1.5 mb-2"><span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm"><i class="fa-solid fa-coins text-emerald-400"></i> ฿${Number(entry.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>` : ''}
                         <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
                             <i class="fa-regular fa-calendar text-emerald-400"></i>
                             <span>${dateStr}</span>
